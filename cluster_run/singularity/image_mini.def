@@ -1,0 +1,17 @@
+Bootstrap: docker
+From: pytorch/pytorch:2.3.0-cuda11.8-cudnn8-runtime
+
+%files
+    ../../requirements.txt /opt/requirements.txt
+
+%post
+    export "PATH=/opt/conda/bin:$PATH"
+
+    apt-get update -y
+    apt-get install libglib2.0-0 -y
+    apt-get install -y libsm6 libxext6
+    apt-get install -y libxrender-dev
+    apt-get install -y wget
+    apt-get install -y unzip
+    cd /opt
+    pip install -r requirements.txt
