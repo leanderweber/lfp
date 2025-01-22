@@ -1,0 +1,48 @@
+# Wandb
+/wandb/
+
+# jupyter notebook checkpoints
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache
+*.DS_Store
+__pycache__/
+
+# data files
+*.jpg
+*.jpeg
+*.png
+*.npy
+*.npz
+*.csv
+*.pth
+
+# dev
+temp/
+
+# code coverage
+*.gcno
+*.gcda
+*.gcov
+test
+.coverage
+coverage.xml
+/coverage/
+.coverage.*
+
+# build
+dist/
+*/*.egg-info/
+*.egg-info/
+build/
+
+# tutorials
+*sample_data/
+tutorials/invited_talks/
+
+# pyCharm project files
+.idea
+
+# tox files.
+.tox
