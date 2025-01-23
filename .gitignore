@@ -38,8 +38,7 @@ dist/
 build/
 
 # tutorials
-*sample_data/
-tutorials/invited_talks/
+./minimal-example-data
 
 # pyCharm project files
 .idea
