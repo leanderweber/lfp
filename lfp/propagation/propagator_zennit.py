@@ -279,7 +279,7 @@ class LFPHook(zcore.Hook):
                 param_relevance = self.reducer(param_datas, param_gradients)
 
                 # LFP
-                param_reward = param_relevance.abs()
+                param_reward = param_relevance
                 param_reward *= getattr(module, key).data.sign()
 
                 # Get param_reward mean
