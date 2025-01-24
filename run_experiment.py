@@ -188,7 +188,6 @@ class Trainer:
             self.optimizer.zero_grad()
             with self.lfp_composite.context(self.model) as modified:
 
-                # TODO: Uncomment
                 if self.global_step == 0:
                    print(modified)
 
@@ -204,9 +203,6 @@ class Trainer:
                                                 (inputs,),
                                                 grad_outputs=(reward,),
                                                 retain_graph=False)[0]
-                
-                #TODO: Remove
-                #print(reward)
                 
                 for name, param in self.model.named_parameters():
                     param.grad = -param.feedback

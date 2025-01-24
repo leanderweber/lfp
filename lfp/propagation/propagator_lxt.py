@@ -1,16 +1,14 @@
 import torch
-
-from torch import nn
-
 from lxt import core as lcore
-from lxt import rules as lrules
 from lxt import functional as lfunctional
+from lxt import rules as lrules
 from lxt.modules import INIT_MODULE_MAPPING
+from torch import nn
 
 from zennit import types as ztypes
 
-from ..model.custom_resnet import Sum
 from ..model import activations
+from ..model.custom_resnet import Sum
 
 
 class ParameterizableComposite(lcore.Composite):
@@ -83,6 +81,7 @@ class ParameterizableComposite(lcore.Composite):
                     # replace module with LXT.module and attach it to parent as attribute
                     # INIT_MODULE_MAPPING contains the correct function for initializing and copying the parameters and buffers
                     xai_module = INIT_MODULE_MAPPING[rule](child, rule)
+                    child = xai_module
                 else:
                     raise ValueError(
                         f"Rule {rule} must be a subclass of WrapModule or a torch.nn.Module"
@@ -93,11 +92,11 @@ class ParameterizableComposite(lcore.Composite):
                 # save original module to revert the composite in self.remove()
                 self.original_modules.append((parent, name, child))
 
-                return True
+                return child
 
         # could not find a rule for the module
 
-        return False
+        return child
 
 
 class RuleGenerator:
@@ -254,29 +253,21 @@ class epsilon_lfp_fn(lrules.epsilon_lrp_fn):
 
 
 class LFPEpsilonComposite(ParameterizableComposite):
-    def __init__(self, norm_backward):
+    def __init__(self, norm_backward=False, epsilon=1e-6):
         layer_map = {
             ztypes.Activation: lrules.IdentityRule,
-            activations.SixStep: lrules.IdentityRule,
-            activations.ExpSteps: lrules.IdentityRule,
-            activations.DoubleStep: lrules.IdentityRule,
-            activations.ClippedLinear: lrules.IdentityRule,
             activations.Step: lrules.IdentityRule,
-            activations.NegStep: lrules.IdentityRule,
-            activations.Linearact: lrules.IdentityRule,
-            activations.StepReLU: lrules.IdentityRule,
-            activations.StepLeakyReLU: lrules.IdentityRule,
             Sum: RuleGenerator(
-                LFPEpsilon, epsilon=1e-6, norm_backward=False, inplace=False
+                LFPEpsilon, epsilon=epsilon, norm_backward=False, inplace=False
             ),
             ztypes.AvgPool: RuleGenerator(
-                LFPEpsilon, epsilon=1e-6, norm_backward=False
+                LFPEpsilon, epsilon=epsilon, norm_backward=False
             ),
             ztypes.Linear: RuleGenerator(
-                LFPEpsilon, epsilon=1e-6, norm_backward=norm_backward
+                LFPEpsilon, epsilon=epsilon, norm_backward=norm_backward
             ),
             ztypes.BatchNorm: RuleGenerator(
-                LFPEpsilon, epsilon=1e-6, norm_backward=norm_backward
+                LFPEpsilon, epsilon=epsilon, norm_backward=norm_backward
             ),
         }
 
