@@ -38,7 +38,7 @@ dist/
 build/
 
 # tutorials
-./minimal-example-data
+minimal-example-data/
 
 # pyCharm project files
 .idea
