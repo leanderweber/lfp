@@ -4,11 +4,6 @@
 # jupyter notebook checkpoints
 .ipynb_checkpoints
 
-# pytest
-.pytest_cache
-*.DS_Store
-__pycache__/
-
 # data files
 *.jpg
 *.jpeg
@@ -43,5 +38,5 @@ minimal-example-data/
 # pyCharm project files
 .idea
 
-# tox files.
-.tox
+#Cached Stuff
+*__pycache__/
