@@ -1,8 +1,8 @@
-from . import model_definitions
-from . import custom_resnet
-from . import activations
 import torch
 import torchvision
+from lfp.model import activations, custom_resnet
+
+from . import model_definitions
 
 TORCHMODEL_MAP = {
     "vgg16": torchvision.models.vgg16,
@@ -21,11 +21,11 @@ MODEL_MAP = {
 }
 
 ACTIVATION_MAP = {
-    "relu":torch.nn.ReLU,
-    "sigmoid":torch.nn.Sigmoid,
-    "silu":torch.nn.SiLU,
-    "leakyrelu":torch.nn.LeakyReLU,
-    "tanh":torch.nn.Tanh,
+    "relu": torch.nn.ReLU,
+    "sigmoid": torch.nn.Sigmoid,
+    "silu": torch.nn.SiLU,
+    "leakyrelu": torch.nn.LeakyReLU,
+    "tanh": torch.nn.Tanh,
     "elu": torch.nn.ELU,
     "step": activations.Step,
 }
@@ -37,37 +37,51 @@ EXCLUDED_MODULE_TYPES = [
     model_definitions.DenseOnly,
 ]
 
+
 def normal_pos(tensor, *args, **kwargs):
     tensor.data = tensor.data.abs()
+
 
 def normal_neg(tensor, *args, **kwargs):
     tensor.data = -tensor.data.abs()
 
-INIT_FUNCS = {
-    "positive": normal_pos,
-    "negative": normal_neg
-}
+
+INIT_FUNCS = {"positive": normal_pos, "negative": normal_neg}
+
 
 def replace_torchvision_last_layer(model, n_outputs):
-    if isinstance(model, torchvision.models.VGG) or isinstance(model, torchvision.models.efficientnet.EfficientNet):
+    if isinstance(model, torchvision.models.VGG) or isinstance(
+        model, torchvision.models.efficientnet.EfficientNet
+    ):
         classifier = model.classifier
-        modules = [m for m in classifier.modules() if not isinstance(m, torch.nn.Sequential)]
+        modules = [
+            m for m in classifier.modules() if not isinstance(m, torch.nn.Sequential)
+        ]
         modules[-1] = torch.nn.Linear(modules[-1].in_features, n_outputs)
         model.classifier = torch.nn.Sequential(*modules)
-    elif isinstance(model, torchvision.models.ResNet) or isinstance(model, torchvision.models.Inception3):
+    elif isinstance(model, torchvision.models.ResNet) or isinstance(
+        model, torchvision.models.Inception3
+    ):
         classifier = model.fc
         model.fc = torch.nn.Linear(classifier.in_features, n_outputs)
     else:
-        model.classifier[-1] = torch.nn.Linear(model.classifier[-1].in_features, n_outputs)
+        model.classifier[-1] = torch.nn.Linear(
+            model.classifier[-1].in_features, n_outputs
+        )
+
 
 def replace_torchvision_activations(model, activation):
     if isinstance(model, torchvision.models.VGG):
         for module in model.modules():
             if isinstance(module, torch.nn.Sequential):
-                seq_modules = [m for m in module.modules() if not isinstance(m, torch.nn.Sequential)]
+                seq_modules = [
+                    m
+                    for m in module.modules()
+                    if not isinstance(m, torch.nn.Sequential)
+                ]
                 for i, mod in enumerate(seq_modules):
                     if isinstance(mod, torch.nn.ReLU):
-                        module[i] = activation() 
+                        module[i] = activation()
         if len([m for m in model.modules() if isinstance(m, torch.nn.ReLU)]) > 0:
             raise ValueError("There are still ReLUs left after replacement!")
     elif isinstance(model, torchvision.models.ResNet):
@@ -79,15 +93,21 @@ def replace_torchvision_activations(model, activation):
     else:
         print("Model type not supported, not changing activations")
 
+
 def init_model_weights(model, init_func):
-    
+
     def param_init(m):
-        if isinstance(m, torch.nn.Conv2d) or isinstance(m, torch.nn.Conv3d) or isinstance(m, torch.nn.Linear):
+        if (
+            isinstance(m, torch.nn.Conv2d)
+            or isinstance(m, torch.nn.Conv3d)
+            or isinstance(m, torch.nn.Linear)
+        ):
             init_func(m.weight)
             if m.bias is not None:
                 init_func(m.bias)
 
     model.apply(param_init)
+
 
 def get_model(model_name, n_channels, n_outputs, device, **kwargs):
     """
@@ -104,12 +124,14 @@ def get_model(model_name, n_channels, n_outputs, device, **kwargs):
     activation = kwargs.get("activation", "relu")
     if model_name in MODEL_MAP:
         model = MODEL_MAP[model_name](
-            n_channels = n_channels,
-            n_outputs = n_outputs,
-            activation = ACTIVATION_MAP[activation],
+            n_channels=n_channels,
+            n_outputs=n_outputs,
+            activation=ACTIVATION_MAP[activation],
         )
     elif model_name in TORCHMODEL_MAP:
-        model = TORCHMODEL_MAP[model_name](pretrained=kwargs.get("pretrained_model", True))
+        model = TORCHMODEL_MAP[model_name](
+            pretrained=kwargs.get("pretrained_model", True)
+        )
         if replace_last_layer:
             replace_torchvision_last_layer(model, n_outputs)
         if activation != "relu":
@@ -122,12 +144,17 @@ def get_model(model_name, n_channels, n_outputs, device, **kwargs):
     # Return model on correct device
     return model.to(device)
 
+
 def list_layers(model):
     """
     List module layers
     """
 
     # Exclude specific types of modules
-    layers = [module for module in model.modules() if type(module) not in [torch.nn.Sequential] + EXCLUDED_MODULE_TYPES]
+    layers = [
+        module
+        for module in model.modules()
+        if type(module) not in [torch.nn.Sequential] + EXCLUDED_MODULE_TYPES
+    ]
 
     return layers

@@ -2,7 +2,7 @@ Bootstrap: docker
 From: pytorch/pytorch:2.3.0-cuda11.8-cudnn8-runtime
 
 %files
-    ../../requirements.txt /opt/requirements.txt
+    ./requirements_apptainer.txt /opt/requirements.txt
 
 %post
     export "PATH=/opt/conda/bin:$PATH"
@@ -14,4 +14,4 @@ From: pytorch/pytorch:2.3.0-cuda11.8-cudnn8-runtime
     apt-get install -y wget
     apt-get install -y unzip
     cd /opt
-    pip install -r requirements.txt
+    pip install -r requirements_apptainer.txt

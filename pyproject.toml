@@ -1,0 +1,72 @@
+[tool.poetry]
+package-mode = true
+name = "lfp"
+version = "0.1.0"
+description = "A package for gradient-free neural network training using LFP"
+readme = "README.md"
+authors = [
+    "Leander Weber <leander.weber@hhi.fraunhofer.de>",
+]
+maintainers = [
+    "Leander Weber <leander.weber@hhi.fraunhofer.de>",
+]
+keywords = ["explainable ai", "xai", "machine learning", "deep learning", "gradient-free optimization"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+license = "BSD-3-Clause"
+exclude = [
+    "cluster_run",
+    "configs",
+    "experiment_utils",
+    "minimal-example-data",
+    "wandb",
+    "nbs",
+    ".gitignore",
+    "minimal_example.ipynb",
+    "run_experiments.py"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+zennit = "^0.5.1"
+lxt = "^0.6.1"
+
+[tool.poetry.group.experiments]
+optional = true
+
+[tool.poetry.group.experiments.dependencies]
+wandb = "^0.19.4"
+notebook = "^7.3.2"
+joblib = "^1.4.2"
+pandas = "^2.2.3"
+scikit-learn = "^1.6.1"
+
+[project]
+license = { file = "LICENSE" }
+
+[project.urls]
+Source = "https://github.com/leanderweber/layerwise-feedback-propagation"
+Issues = "https://github.com/leanderweber/layerwise-feedback-propagation/issues"
+
+[project.optional-dependencies]
+wandb-logging = [
+    "wandb>=0.17.1",
+]
+
+notebooks = [
+    "lfp[wandb-logging]",
+    "notebook>=7.0.8",
+    "joblib>=1.4.2",
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

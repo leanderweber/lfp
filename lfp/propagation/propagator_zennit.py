@@ -10,7 +10,6 @@ from zennit import types as ztypes
 
 from . import LAYER_MAP_BASE
 
-
 def collect_leaves(module):
     """
     From Zennit.

@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torchvision.models.resnet import BasicBlock, Bottleneck, ResNet, conv1x1, _ovewrite_named_param
 from torchvision.models.resnet import register_model, handle_legacy_interface
-from torchvision.models.resnet import Any, Callable, List, Optional, Type, Union
+from torchvision.models.resnet import Any, Optional
 from torchvision.models.resnet import ResNet101_Weights, ResNet152_Weights, ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNeXt101_32X8D_Weights, ResNeXt101_64X4D_Weights, ResNeXt50_32X4D_Weights, Wide_ResNet101_2_Weights, Wide_ResNet50_2_Weights
 
 

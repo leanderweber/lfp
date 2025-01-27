@@ -1,6 +1,3 @@
-import os
-import random
-
 import torch.utils.data as tdata
 
 DATALOADER_MAPPING = {

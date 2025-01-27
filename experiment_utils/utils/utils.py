@@ -1,12 +1,13 @@
 import logging
 import os
 import random
+
 import joblib
 import numpy as np
 import torch
+from lfp.propagation import propagator_zennit
 
 from ..model import models
-from ..propagation import propagator_lxt, propagator_zennit
 
 
 def set_random_seeds(seed):

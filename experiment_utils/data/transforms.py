@@ -1,7 +1,7 @@
+import numpy as np
+import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as F
-import torch
-import numpy as np
 
 
 class AddGaussianNoise:

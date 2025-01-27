@@ -1,0 +1,13 @@
+click
+joblib
+pandas
+scikit-learn
+seaborn
+torchnet
+torchsummary
+torcheval
+tqdm
+wandb
+zennit
+transformers
+tabulate

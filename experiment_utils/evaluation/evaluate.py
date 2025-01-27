@@ -1,12 +1,14 @@
-import torch
-import numpy as np
-
 import logging
 from typing import Optional, Tuple, TypeVar
+
+import numpy as np
+import torch
+
 TRecall = TypeVar("TRecall")
 import torcheval
 import torcheval.metrics
 import torcheval.metrics.classification
+
 
 # Recall patch: The multiclass recall of torcheval is currently bugged, see https://github.com/pytorch/torcheval/issues/150
 # This patches the bug
@@ -20,7 +22,7 @@ def _recall_compute(
         # Ignore classes which have no samples in `target` and `input`
         mask = (num_labels != 0) | (num_predictions != 0)
         num_tp = num_tp[mask]
-        num_labels = num_labels[mask] #THIS IS THE PATCH
+        num_labels = num_labels[mask]  # THIS IS THE PATCH
 
     recall = num_tp / num_labels
 
@@ -43,7 +45,8 @@ def _recall_compute(
         return (recall * weights).sum()
     else:  # average is None
         return recall
-    
+
+
 @torch.inference_mode()
 def compute(self: TRecall) -> torch.Tensor:
     """
@@ -55,7 +58,9 @@ def compute(self: TRecall) -> torch.Tensor:
         self.num_tp, self.num_labels, self.num_predictions, self.average
     )
 
+
 torcheval.metrics.classification.MulticlassRecall.compute = compute
+
 
 def eval(model, loader, criterion_func, device):
     """
@@ -76,12 +81,24 @@ def eval(model, loader, criterion_func, device):
     if binary:
         metrics = {
             "criterion": torcheval.metrics.Mean(device=device),
-            "accuracy_p040": torcheval.metrics.BinaryAccuracy(threshold=0.4, device=device),
-            "accuracy_p050": torcheval.metrics.BinaryAccuracy(threshold=0.5, device=device),
-            "accuracy_p060": torcheval.metrics.BinaryAccuracy(threshold=0.6, device=device),
-            "precision_p040": torcheval.metrics.BinaryPrecision(threshold=0.4, device=device),
-            "precision_p050": torcheval.metrics.BinaryPrecision(threshold=0.5, device=device),
-            "precision_p060": torcheval.metrics.BinaryPrecision(threshold=0.6, device=device),
+            "accuracy_p040": torcheval.metrics.BinaryAccuracy(
+                threshold=0.4, device=device
+            ),
+            "accuracy_p050": torcheval.metrics.BinaryAccuracy(
+                threshold=0.5, device=device
+            ),
+            "accuracy_p060": torcheval.metrics.BinaryAccuracy(
+                threshold=0.6, device=device
+            ),
+            "precision_p040": torcheval.metrics.BinaryPrecision(
+                threshold=0.4, device=device
+            ),
+            "precision_p050": torcheval.metrics.BinaryPrecision(
+                threshold=0.5, device=device
+            ),
+            "precision_p060": torcheval.metrics.BinaryPrecision(
+                threshold=0.6, device=device
+            ),
             "recall_p040": torcheval.metrics.BinaryRecall(threshold=0.4, device=device),
             "recall_p050": torcheval.metrics.BinaryRecall(threshold=0.5, device=device),
             "recall_p060": torcheval.metrics.BinaryRecall(threshold=0.6, device=device),
@@ -92,18 +109,42 @@ def eval(model, loader, criterion_func, device):
     else:
         metrics = {
             "criterion": torcheval.metrics.Mean(device=device),
-            "micro_accuracy_top1": torcheval.metrics.MulticlassAccuracy(average="micro", num_classes=num_classes, k=1, device=device),
-            "micro_accuracy_top3": torcheval.metrics.MulticlassAccuracy(average="micro", num_classes=num_classes, k=3, device=device),
-            "micro_accuracy_top5": torcheval.metrics.MulticlassAccuracy(average="micro", num_classes=num_classes, k=5, device=device),
-            "micro_precision": torcheval.metrics.MulticlassPrecision(average="micro", num_classes=num_classes, device=device),
-            "micro_recall": torcheval.metrics.MulticlassRecall(average="micro", num_classes=num_classes, device=device),
-            "micro_f1": torcheval.metrics.MulticlassF1Score(average="micro", num_classes=num_classes, device=device),
-            "macro_accuracy_top1": torcheval.metrics.MulticlassAccuracy(average="macro", num_classes=num_classes, k=1, device=device),
-            "macro_accuracy_top3": torcheval.metrics.MulticlassAccuracy(average="macro", num_classes=num_classes, k=3, device=device),
-            "macro_accuracy_top5": torcheval.metrics.MulticlassAccuracy(average="macro", num_classes=num_classes, k=5, device=device),
-            "macro_precision": torcheval.metrics.MulticlassPrecision(average="macro", num_classes=num_classes, device=device),
-            "macro_recall": torcheval.metrics.MulticlassRecall(average="macro", num_classes=num_classes, device=device),
-            "macro_f1": torcheval.metrics.MulticlassF1Score(average="macro", num_classes=num_classes, device=device),
+            "micro_accuracy_top1": torcheval.metrics.MulticlassAccuracy(
+                average="micro", num_classes=num_classes, k=1, device=device
+            ),
+            "micro_accuracy_top3": torcheval.metrics.MulticlassAccuracy(
+                average="micro", num_classes=num_classes, k=3, device=device
+            ),
+            "micro_accuracy_top5": torcheval.metrics.MulticlassAccuracy(
+                average="micro", num_classes=num_classes, k=5, device=device
+            ),
+            "micro_precision": torcheval.metrics.MulticlassPrecision(
+                average="micro", num_classes=num_classes, device=device
+            ),
+            "micro_recall": torcheval.metrics.MulticlassRecall(
+                average="micro", num_classes=num_classes, device=device
+            ),
+            "micro_f1": torcheval.metrics.MulticlassF1Score(
+                average="micro", num_classes=num_classes, device=device
+            ),
+            "macro_accuracy_top1": torcheval.metrics.MulticlassAccuracy(
+                average="macro", num_classes=num_classes, k=1, device=device
+            ),
+            "macro_accuracy_top3": torcheval.metrics.MulticlassAccuracy(
+                average="macro", num_classes=num_classes, k=3, device=device
+            ),
+            "macro_accuracy_top5": torcheval.metrics.MulticlassAccuracy(
+                average="macro", num_classes=num_classes, k=5, device=device
+            ),
+            "macro_precision": torcheval.metrics.MulticlassPrecision(
+                average="macro", num_classes=num_classes, device=device
+            ),
+            "macro_recall": torcheval.metrics.MulticlassRecall(
+                average="macro", num_classes=num_classes, device=device
+            ),
+            "macro_f1": torcheval.metrics.MulticlassF1Score(
+                average="macro", num_classes=num_classes, device=device
+            ),
         }
 
     # Set model to eval mode
@@ -124,7 +165,9 @@ def eval(model, loader, criterion_func, device):
         with torch.set_grad_enabled(True):
             # Get rewards
             if isinstance(criterion_func, torch.nn.modules.loss._Loss):
-                crit = torch.ones_like(outputs)*criterion_func(outputs, labels) # reshape to correct shape
+                crit = torch.ones_like(outputs) * criterion_func(
+                    outputs, labels
+                )  # reshape to correct shape
             else:
                 crit = criterion_func(outputs, labels)
 
@@ -137,7 +180,9 @@ def eval(model, loader, criterion_func, device):
             else:
                 metrics[k].update(outputs, labels)
 
-    return_dict = {m: metric.compute().detach().cpu().numpy() for m, metric in metrics.items()}
+    return_dict = {
+        m: metric.compute().detach().cpu().numpy() for m, metric in metrics.items()
+    }
 
     # Return labels, predictions, accuracy and loss
     return return_dict
