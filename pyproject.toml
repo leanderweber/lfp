@@ -38,18 +38,17 @@ exclude = [
 python = ">=3.11"
 zennit = "^0.5.1"
 lxt = "^0.6.1"
+wandb = { version = "^0.19.4", optional = true }
+notebook = { version = "^7.3.2", optional = true }
+joblib = { version = "^1.4.2", optional = true }
+pandas = { version = "^2.2.3", optional = true }
+scikit-learn = { version = "^1.6.1", optional = true }
+matplotlib = { version = "<3.8", optional = true }
+torcheval = { version = "^0.0.7", optional = true }
 
-[tool.poetry.group.experiments]
-optional = true
-
-[tool.poetry.group.experiments.dependencies]
-wandb = "^0.19.4"
-notebook = "^7.3.2"
-joblib = "^1.4.2"
-pandas = "^2.2.3"
-scikit-learn = "^1.6.1"
-matplotlib = "<3.8"
-torcheval = "^0.0.7"
+[tool.poetry.extras]
+quickstart = ["notebook", "torcheval"]
+full = ["wandb", "notebook", "joblib", "pandas", "scikit-learn", "matplotlib", "torcheval"]
 
 [project]
 license = { file = "LICENSE" }

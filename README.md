@@ -19,6 +19,11 @@ LFP does not require differentiable models or objectives.
 
 ### :fire: Installation
 
+LFP is available from PyPI, to install simply run
+
+```shell
+$ pip install lfp
+```
 
 ### Overview
 
@@ -27,6 +32,8 @@ LFP does not require differentiable models or objectives.
 
 
 ### :mag: Reproducing Experiments
+
+To reproduce experiments from the paper
 
 
 ## :pencil2: Contributing
