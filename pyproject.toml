@@ -48,6 +48,8 @@ notebook = "^7.3.2"
 joblib = "^1.4.2"
 pandas = "^2.2.3"
 scikit-learn = "^1.6.1"
+matplotlib = "<3.8"
+torcheval = "^0.0.7"
 
 [project]
 license = { file = "LICENSE" }
@@ -55,17 +57,6 @@ license = { file = "LICENSE" }
 [project.urls]
 Source = "https://github.com/leanderweber/layerwise-feedback-propagation"
 Issues = "https://github.com/leanderweber/layerwise-feedback-propagation/issues"
-
-[project.optional-dependencies]
-wandb-logging = [
-    "wandb>=0.17.1",
-]
-
-notebooks = [
-    "lfp[wandb-logging]",
-    "notebook>=7.0.8",
-    "joblib>=1.4.2",
-]
 
 [build-system]
 requires = ["poetry-core"]
