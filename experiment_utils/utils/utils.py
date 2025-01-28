@@ -5,7 +5,7 @@ import random
 import joblib
 import numpy as np
 import torch
-from lfp.propagation import propagator_zennit
+from lfprop.propagation import propagator_zennit
 
 from ..model import models
 

@@ -20,8 +20,8 @@ from experiment_utils.data import transforms as transforms
 from experiment_utils.evaluation import evaluate as evaluate
 from experiment_utils.model import models as models
 from experiment_utils.utils.utils import register_backward_normhooks, set_random_seeds
-from lfp.propagation import propagator_lxt as propagator
-from lfp.rewards import rewards as rewards
+from lfprop.propagation import propagator_lxt as propagator
+from lfprop.rewards import rewards as rewards
 from tqdm import tqdm
 
 # os.environ['CUDA_LAUNCH_BLOCKING'] = "1"

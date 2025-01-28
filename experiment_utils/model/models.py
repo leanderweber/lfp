@@ -1,6 +1,6 @@
 import torch
 import torchvision
-from lfp.model import activations, custom_resnet
+from lfprop.model import activations, custom_resnet
 
 from . import model_definitions
 

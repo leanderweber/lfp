@@ -22,7 +22,7 @@ LFP does not require differentiable models or objectives.
 LFP is available from PyPI, to install simply run
 
 ```shell
-$ pip install lfp
+$ pip install lfprop
 ```
 
 ### Overview

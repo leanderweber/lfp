@@ -1,6 +1,6 @@
 [tool.poetry]
 package-mode = true
-name = "lfp"
+name = "lfprop"
 version = "0.1.0"
 description = "A package for gradient-free neural network training using LFP"
 readme = "README.md"
