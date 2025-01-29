@@ -1,6 +1,7 @@
-# Layer-wise Feedback Propagation
-
-Gradient-free Neural Network Training based on Layer-wise Relevance Propagation (LRP)
+<div align="center">
+  <img src="docs/source/_static/lfp_logo.png" width="300"/>
+  <p>Gradient-free Neural Network Training based on Layer-wise Relevance Propagation (LRP)</p>
+</div>
 
 ### :octopus: Flexibility
 LFP does not require differentiable models or objectives. 
