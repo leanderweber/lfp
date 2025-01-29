@@ -7,7 +7,6 @@
 # data files
 *.jpg
 *.jpeg
-*.png
 *.npy
 *.npz
 *.csv
