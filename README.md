@@ -51,13 +51,13 @@ Our implementation of LFP is based the LRP-implementation of the [zennit](https:
 
 ```lfprop``` extends these libraries to return relevances not only w.r.t. activations, but also w.r.t. parameters. Similar to LXT and zennit, this requires registering a composite to modify the backward pass.
 
-#### Zennit Backend
+*Zennit Backend*
 ```python
 from lfprop.propagation import propagator_zennit
 propagation_composite = propagator.LFPEpsilonComposite()
 ```
 
-#### LXT Backend
+*LXT Backend*
 ```python
 from lfprop.propagation import propagator_lxt
 propagation_composite = propagator.LFPEpsilonComposite()
