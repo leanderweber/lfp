@@ -6,9 +6,17 @@ description = "A package for gradient-free neural network training using LFP"
 readme = "README.md"
 authors = [
     "Leander Weber <leander.weber@hhi.fraunhofer.de>",
+    "Jim Berend <jim.berend@hhi.fraunhofer.de>",
+    "Moritz Weckbecker <moritz.weckbecker@hhi.fraunhofer.de>",
+    "Alexander Binder <alexander.binder@ovgu.de>",
+    "Thomas Wiegand <thomas.wiegand@hhi.fraunhofer.de>",
+    "Wojciech Samek <wojciech.samek@hhi.fraunhofer.de>",
+    "Sebastian Lapuschkin <sebastian.lapuschkin@hhi.fraunhofer.de>",
 ]
 maintainers = [
     "Leander Weber <leander.weber@hhi.fraunhofer.de>",
+    "Jim Berend <jim.berend@hhi.fraunhofer.de>",
+    "Moritz Weckbecker <moritz.weckbecker@hhi.fraunhofer.de>",
 ]
 keywords = ["explainable ai", "xai", "machine learning", "deep learning", "gradient-free optimization"]
 classifiers = [
