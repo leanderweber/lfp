@@ -4,5 +4,5 @@ cd /mnt/layer-wise-feedback-propagation
 
 echo "STARTING JOB $@"
 
-python3 -m run_experiment --config_file "configs/cifar100-cifar10-transfer/cluster/$@"
+python3 -m run_experiment --config_file "configs/cifar-basemodels/cluster/$@"
 

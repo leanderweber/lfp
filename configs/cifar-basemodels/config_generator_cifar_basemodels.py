@@ -2,7 +2,7 @@ import os
 
 import yaml
 
-config_dir = "configs/cifar100-cifar10-transfer/"
+config_dir = "configs/cifar-basemodels/"
 
 #os.makedirs(f"{config_dir}/local", exist_ok=True)
 os.makedirs(f"{config_dir}/cluster", exist_ok=True)
@@ -22,7 +22,7 @@ base_config = {
     "batch_log": False,
     "wandb_key": "<wandb-key>",
     "disable_wandb": False,
-    "wandb_project_name": "cifar100-cifar10-transfer-base-models",
+    "wandb_project_name": "cifar-basemodels",
     "transfer_training": False,
     "verbose": False,
 }

@@ -38,7 +38,7 @@ cp -r ${DATA_SOURCE_DIR}/cifar100 ${LOCAL_JOB_DIR}/data
 
 apptainer run --nv \
               --bind ${LOCAL_JOB_DIR}:/mnt \-
-              ../../singularity/image_mini.sif bash /mnt/layer-wise-feedback-propagation/cluster_run/slurm/cifar100-cifar10-transfer/run.sh $fname_config
+              ../../singularity/image_mini.sif bash /mnt/layer-wise-feedback-propagation/cluster_run/slurm/cifar-basemodels/run.sh $fname_config
 echo "Training finished"
 
 echo "Copying results"

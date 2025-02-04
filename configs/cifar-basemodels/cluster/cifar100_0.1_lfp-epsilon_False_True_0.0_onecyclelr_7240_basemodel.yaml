@@ -1,6 +1,6 @@
 activation: relu
 base_data_path: /mnt/data/
-base_dataset_name: cifar10
+base_dataset_name: cifar100
 base_epochs: 50
 base_lr: 0.1
 batch_log: false
@@ -22,5 +22,5 @@ seed: 7240
 transfer_training: false
 verbose: false
 wandb_key: <wandb-key>
-wandb_project_name: cifar100-cifar10-transfer-base-models
+wandb_project_name: cifar-basemodels
 weight_decay: 0.0

@@ -18,9 +18,9 @@ reward_kwargs: {}
 reward_name: softmaxlossreward
 savepath: /mnt/output
 scheduler_name: onecyclelr
-seed: 5110
+seed: 5628
 transfer_training: false
 verbose: false
 wandb_key: <wandb-key>
-wandb_project_name: cifar100-cifar10-transfer-base-models
+wandb_project_name: cifar-basemodels
 weight_decay: 0.0
