@@ -24,7 +24,6 @@ base_config = {
     "disable_wandb": False,
     "transfer_training": True,
     "verbose": False,
-    "batch_log": False,
     "param_sparsity_log": False,
     "param_update_log": False,
 }
@@ -71,7 +70,18 @@ for transfer_dataset_name in TRANSFER_DATASET_NAMES:
 
                                     base_config["base_model_path"] = f"/mnt/output/{seed}/ckpts/base-model-last.pt"
 
-                                    config_name = f"{base_config['transfer_dataset_name']}_{base_config['model_name']}_{base_config['activation']}_{base_config['transfer_lr']}_{base_config['propagator_name']}_{base_config['norm_backward']}_{base_config['clip_updates']}_{base_config['weight_decay']}_{base_config['scheduler_name']}_{base_config['seed']}"
+                                    config_name = f"{base_config['transfer_dataset_name']}_{base_config['model_name']}"
+                                    config_name += f"_{base_config['activation']}_{base_config['transfer_lr']}"
+                                    config_name += f"_{base_config['propagator_name']}_{base_config['norm_backward']}"
+                                    config_name += f"_{base_config['clip_updates']}_{base_config['weight_decay']}"
+                                    config_name += f"_{base_config['scheduler_name']}_{base_config['seed']}"
 
-                                    with open(f"{config_dir}/cluster/{config_name}_transfermodel.yaml", "w") as outfile:
-                                        yaml.dump(base_config, outfile, default_flow_style=False)
+                                    with open(
+                                        f"{config_dir}/cluster/{config_name}_transfermodel.yaml",
+                                        "w",
+                                    ) as outfile:
+                                        yaml.dump(
+                                            base_config,
+                                            outfile,
+                                            default_flow_style=False,
+                                        )

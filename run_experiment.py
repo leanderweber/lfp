@@ -16,14 +16,12 @@ import wandb
 import yaml
 from tqdm import tqdm
 
-from experiment_utils.data import dataloaders as dataloaders
-from experiment_utils.data import datasets as datasets
-from experiment_utils.data import transforms as transforms
-from experiment_utils.evaluation import evaluate as evaluate
-from experiment_utils.model import models as models
+from experiment_utils.data import dataloaders, datasets, transforms
+from experiment_utils.evaluation import evaluate
+from experiment_utils.model import models
 from experiment_utils.utils.utils import register_backward_normhooks, set_random_seeds
 from lfprop.propagation import propagator_lxt as propagator
-from lfprop.rewards import rewards as rewards
+from lfprop.rewards import rewards
 
 # os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
@@ -38,13 +36,13 @@ class DummyFile(object):
 
 def gini_idx(param):
     param = param.detach().abs()
-    sorted, indices = torch.sort(param.view(-1))
+    sortedparam, indices = torch.sort(param.view(-1))
 
-    sortedidx = torch.arange(0, sorted.numel(), 1).to(param.device)
+    sortedidx = torch.arange(0, sortedparam.numel(), 1).to(param.device)
 
-    gini_numerator = 2 * (sorted * sortedidx).sum()
-    gini_denominator = sorted.numel() * sorted.sum()
-    gini_addendum = (sorted.numel() + 1) / sorted.numel()
+    gini_numerator = 2 * (sortedparam * sortedidx).sum()
+    gini_denominator = sortedparam.numel() * sortedparam.sum()
+    gini_addendum = (sortedparam.numel() + 1) / sortedparam.numel()
 
     return gini_numerator / gini_denominator - gini_addendum
 
@@ -232,7 +230,7 @@ class Trainer:
                 reward = torch.from_numpy(self.criterion(outputs, labels).detach().cpu().numpy()).to(device)
 
                 # Write LFP Values into .grad attributes
-                input_reward = torch.autograd.grad((outputs,), (inputs,), grad_outputs=(reward,), retain_graph=False)[0]
+                _ = torch.autograd.grad((outputs,), (inputs,), grad_outputs=(reward,), retain_graph=False)[0]
 
                 for name, param in self.model.named_parameters():
                     param.grad = -param.feedback
@@ -332,9 +330,9 @@ class Trainer:
 
         for epoch in range(epochs):
             with tqdm(total=len(loader), disable=not verbose) as pbar:
-                for index, (inputs, labels) in enumerate(loader):
-                    inputs = inputs.to(device)
-                    labels = torch.tensor(labels).to(device)
+                for index, (inp, lab) in enumerate(loader):
+                    inputs = inp.to(device)
+                    labels = torch.tensor(lab).to(device)
 
                     if self.lfp_composite is None:
                         # Grad Step
@@ -348,16 +346,6 @@ class Trainer:
 
                     if self.scheduler is not None and self.schedule_lr_every_step:
                         self.scheduler.step()
-
-                    # TODO: Remove
-                    # if index % 30 == 0:
-                    #     eval_stats_train = self.eval(dataset, dataset_name)
-                    #     print("Train: Step {}/{}: (Criterion) {:.2f}; (Accuracy) {:.2f}".format(
-                    #         index+1,
-                    #         len(loader),
-                    #         float(np.mean(eval_stats_train["criterion"])),
-                    #         float(eval_stats_train["accuracy"]),
-                    #     ))
 
                     if batch_log and epoch == 0:
                         self.store_head(dataset_name)
@@ -494,7 +482,7 @@ class Trainer:
 
         print(f"Evaluating dataset '{dataset_name}' containing {len(loader)} batches")
 
-        return_dict = evaluate.eval(self.eval_model, loader, self.criterion, device)
+        return_dict = evaluate.evaluate(self.eval_model, loader, self.criterion, device)
 
         return return_dict
 
@@ -670,15 +658,15 @@ def run_training_transfer(
     logdict.update({f"reward_{k}": v for k, v in reward_kwargs.items()})
 
     print("Intializing wandb")
-    id = wandb.util.generate_id()
+    w_id = wandb.util.generate_id()
     wandb.init(
-        id=id,
+        id=w_id,
         project=wandb_project_name,
         dir=wandbpath,
         mode="disabled" if disable_wandb else "online",
         config=logdict,
     )
-    joblib.dump(id, os.path.join(savepath, "wandb_id.joblib"))
+    joblib.dump(w_id, os.path.join(savepath, "wandb_id.joblib"))
 
     # Set seeds for reproducability
     if seed is not None:
@@ -688,12 +676,6 @@ def run_training_transfer(
     # Data
     print("Loading Initial State...")
     with nostdout(verbose=verbose):
-        train_dataset_base = datasets.get_dataset(
-            base_dataset_name,
-            base_data_path,
-            transforms.get_transforms(base_dataset_name, "train"),
-            mode="train",
-        )
         test_dataset_base = datasets.get_dataset(
             base_dataset_name,
             base_data_path,
@@ -719,11 +701,6 @@ def run_training_transfer(
             norm_backward=norm_backward,
         ),
         "vanilla-gradient": None,
-        # "lfp-zplus-zminus": propagator.LFPZplusZminusConComposite(
-        #     norm_backward=norm_backward,
-        #     use_input_magnitude=True,
-        #     use_param_sign=False
-        # ),
     }
     propagation_composite = propagation_composites[propagator_name]
 
@@ -939,15 +916,15 @@ def run_training_base(
     }
     logdict.update({f"reward_{k}": v for k, v in reward_kwargs.items()})
     print("Intializing wandb")
-    id = wandb.util.generate_id()
+    w_id = wandb.util.generate_id()
     wandb.init(
-        id=id,
+        id=w_id,
         project=wandb_project_name,
         dir=wandbpath,
         mode="disabled" if disable_wandb else "online",
         config=logdict,
     )
-    joblib.dump(id, os.path.join(savepath, "wandb_id.joblib"))
+    joblib.dump(w_id, os.path.join(savepath, "wandb_id.joblib"))
 
     # Set seeds for reproducability
     if seed is not None:

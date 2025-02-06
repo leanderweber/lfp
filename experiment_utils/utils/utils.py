@@ -89,7 +89,7 @@ def load_model(model, optimizer, quantizer_model, savepath, filename):
             quantizer_model.load_state_dict(checkpoint["optimizer_state_dict"])
 
 
-def save_forward_hook(module, input, output):
+def save_forward_hook(module, inp, output):
     """ """
     # Save module input
     module.saved_output = output[0].detach().cpu().numpy()

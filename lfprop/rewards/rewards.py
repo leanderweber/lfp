@@ -24,30 +24,32 @@ class CustomCrossEntropyLoss(torch.nn.Module):
             else:
                 g_in = retval
             retval = (g_in / self.stored_input.abs(),)
-        else:
-            retval = retval
 
         retval = torch.where(
-            self.stored_softmax > self.higher_bound, 0.0, retval[0] if isinstance(retval, tuple) else retval
+            self.stored_softmax > self.higher_bound,
+            0.0,
+            retval[0] if isinstance(retval, tuple) else retval,
         )
         retval = torch.where(
-            self.stored_softmax < self.lower_bound, 0.0, retval[0] if isinstance(retval, tuple) else retval
+            self.stored_softmax < self.lower_bound,
+            0.0,
+            retval[0] if isinstance(retval, tuple) else retval,
         )
 
         return retval
 
-    def forward(self, input, target):
+    def forward(self, inp, target):
         # Store input for backward hook
-        self.stored_input = input
+        self.stored_input = inp
         self.stored_target = target
-        if input.requires_grad:
-            input.register_hook(self.tensor_backward_hook)
+        if inp.requires_grad:
+            inp.register_hook(self.tensor_backward_hook)
 
-        softmax = torch.nn.functional.softmax(input, dim=1)
+        softmax = torch.nn.functional.softmax(inp, dim=1)
         self.stored_softmax = softmax
 
         # Compute log_softmax (approximation) of bounded softmax
-        log_softmax = torch.nn.functional.log_softmax(input, dim=1)
+        log_softmax = torch.nn.functional.log_softmax(inp, dim=1)
         regularized_log_softmax = log_softmax
         regularized_log_softmax = torch.where(softmax > self.higher_bound, 0.0, regularized_log_softmax)
         regularized_log_softmax = torch.where(

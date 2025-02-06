@@ -24,15 +24,15 @@ from torchvision.models.resnet import (
 
 __all__ = [
     "ResNet",
-    "resnet18",
-    "resnet34",
-    "resnet50",
-    "resnet101",
-    "resnet152",
-    "resnext50_32x4d",
-    "resnext101_32x8d",
-    "wide_custom_resnet50_2",
-    "wide_custom_resnet101_2",
+    "custom_resnet18",
+    "custom_resnet34",
+    "custom_resnet50",
+    "custom_resnet101",
+    "custom_resnet152",
+    "custom_resnext50_32x4d",
+    "custom_resnext101_32x8d",
+    "custom_wide_resnet50_2",
+    "custom_wide_resnet101_2",
 ]
 
 
@@ -41,17 +41,32 @@ class Sum(nn.Module):
         super(Sum, self).__init__()
 
     def forward(self, x, identity):
-        sum = x + identity
+        summed = x + identity
 
-        return sum
+        return summed
 
 
 class CustomBasicBlock(BasicBlock):
     def __init__(
-        self, inplanes, planes, stride=1, downsample=None, groups=1, base_width=64, dilation=1, norm_layer=None
+        self,
+        inplanes,
+        planes,
+        stride=1,
+        downsample=None,
+        groups=1,
+        base_width=64,
+        dilation=1,
+        norm_layer=None,
     ):
         super(CustomBasicBlock, self).__init__(
-            inplanes, planes, stride, downsample, groups, base_width, dilation, norm_layer
+            inplanes,
+            planes,
+            stride,
+            downsample,
+            groups,
+            base_width,
+            dilation,
+            norm_layer,
         )
         self.sum = Sum()
 
@@ -81,10 +96,25 @@ class CustomBasicBlock(BasicBlock):
 
 class CustomBottleneck(Bottleneck):
     def __init__(
-        self, inplanes, planes, stride=1, downsample=None, groups=1, base_width=64, dilation=1, norm_layer=None
+        self,
+        inplanes,
+        planes,
+        stride=1,
+        downsample=None,
+        groups=1,
+        base_width=64,
+        dilation=1,
+        norm_layer=None,
     ):
         super(CustomBottleneck, self).__init__(
-            inplanes, planes, stride, downsample, groups, base_width, dilation, norm_layer
+            inplanes,
+            planes,
+            stride,
+            downsample,
+            groups,
+            base_width,
+            dilation,
+            norm_layer,
         )
         self.sum = Sum()
 
@@ -155,7 +185,14 @@ class CustomResNet(ResNet):
         layers = []
         layers.append(
             block(
-                self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer
+                self.inplanes,
+                planes,
+                stride,
+                downsample,
+                self.groups,
+                self.base_width,
+                previous_dilation,
+                norm_layer,
             )
         )
         self.inplanes = planes * block.expansion

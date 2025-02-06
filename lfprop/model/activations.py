@@ -11,7 +11,7 @@ class Step(tnn.Module):
         # self.fn = StepFunction.apply
         super().__init__()
 
-    def forward(self, input):
+    def forward(self, inp):
         # return self.fn(input)
-        step = torch.where(input > 0, torch.sign(input), input * 0)
+        step = torch.where(inp > 0, torch.sign(inp), inp * 0)
         return step

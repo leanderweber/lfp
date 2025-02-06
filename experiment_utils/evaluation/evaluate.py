@@ -2,11 +2,11 @@ import logging
 from typing import Optional, TypeVar
 
 import torch
-
-TRecall = TypeVar("TRecall")
 import torcheval
 import torcheval.metrics
 import torcheval.metrics.classification
+
+TRecall = TypeVar("TRecall")
 
 
 # Recall patch: The multiclass recall of torcheval is currently bugged, see https://github.com/pytorch/torcheval/issues/150
@@ -59,15 +59,15 @@ def compute(self: TRecall) -> torch.Tensor:
 torcheval.metrics.classification.MulticlassRecall.compute = compute
 
 
-def eval(model, loader, criterion_func, device):
+def evaluate(model, loader, criterion_func, device):
     """
     Evaluates one epoch (predictions and accuracy). Returns labels, predictions, accuracy and reward function.
     """
     binary = True
-    for i, (inputs, labels) in enumerate(loader):
-        inputs = inputs.to(device)
+    for i, (inputs, lab) in enumerate(loader):
+        inp = inputs.to(device)
         with torch.no_grad():
-            outputs = model(inputs)
+            outputs = model(inp)
         if outputs.shape[-1] == 1:
             binary = True
             num_classes = 2
@@ -130,19 +130,19 @@ def eval(model, loader, criterion_func, device):
     # Iterate over data.
     for i, (inputs, labels) in enumerate(loader):
         # Prepare inputs and labels
-        inputs = inputs.to(device)
-        labels = labels.to(device)
+        inp = inputs.to(device)
+        lab = labels.to(device)
 
         with torch.no_grad():
             # Get model predictions
-            outputs = model(inputs)
+            outputs = model(inp)
 
         with torch.set_grad_enabled(True):
             # Get rewards
             if isinstance(criterion_func, torch.nn.modules.loss._Loss):
-                crit = torch.ones_like(outputs) * criterion_func(outputs, labels)  # reshape to correct shape
+                crit = torch.ones_like(outputs) * criterion_func(outputs, lab)  # reshape to correct shape
             else:
-                crit = criterion_func(outputs, labels)
+                crit = criterion_func(outputs, lab)
 
         if binary:
             outputs = torch.nn.functional.sigmoid(outputs).squeeze()
@@ -151,7 +151,7 @@ def eval(model, loader, criterion_func, device):
             if k == "criterion":
                 metrics[k].update(crit)
             else:
-                metrics[k].update(outputs, labels)
+                metrics[k].update(outputs, lab)
 
     return_dict = {m: metric.compute().detach().cpu().numpy() for m, metric in metrics.items()}
 

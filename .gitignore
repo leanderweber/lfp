@@ -14,6 +14,7 @@
 
 # dev
 temp/
+.ruff_cache/
 
 # code coverage
 *.gcno

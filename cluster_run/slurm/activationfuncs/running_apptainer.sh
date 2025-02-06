@@ -50,6 +50,6 @@ echo "Copying results"
 cd ${LOCAL_JOB_DIR}
 tar -czf ${fname_config}-output_data.tgz output
 cp -r ${fname_config}-output_data.tgz ${RESULT_STORAGE_DIR}
-mv ${SLURM_SUBMIT_DIR}/lfp-transfer-${SLURM_JOB_ID}.out ${RESULT_STORAGE_DIR}/lfp-transfer-${fname_config}-${SLURM_JOB_ID}.out 
+mv ${SLURM_SUBMIT_DIR}/lfp-transfer-${SLURM_JOB_ID}.out ${RESULT_STORAGE_DIR}/lfp-transfer-${fname_config}-${SLURM_JOB_ID}.out
 echo "Results Copied"
 echo "Done!"

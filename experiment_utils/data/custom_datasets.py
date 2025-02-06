@@ -1042,7 +1042,12 @@ class ImageNet(tdata.Dataset):
             if os.path.exists(cl_dir) and cl in self.classes:
                 for fname in [f for f in os.listdir(cl_dir) if os.path.isfile(os.path.join(cl_dir, f))]:
                     if fname.split(".")[-1].lower() in self.accepted_filetypes:
-                        self.samples.append((os.path.join(cl_dir, fname), LABEL_MAP_IMAGENET[cl]["label"]))
+                        self.samples.append(
+                            (
+                                os.path.join(cl_dir, fname),
+                                LABEL_MAP_IMAGENET[cl]["label"],
+                            )
+                        )
 
     def __len__(self):
         """
@@ -1192,7 +1197,17 @@ class ISIC(tdata.Dataset):
             num_mel = self.metadata["MEL"].sum()
             dist = np.array([len(self.metadata) - num_mel, num_mel])
         else:
-            self.class_names = ["MEL", "NV", "BCC", "AK", "BKL", "DF", "VASC", "SCC", "UNK"]
+            self.class_names = [
+                "MEL",
+                "NV",
+                "BCC",
+                "AK",
+                "BKL",
+                "DF",
+                "VASC",
+                "SCC",
+                "UNK",
+            ]
             dist = np.array([float(x) for x in self.metadata.agg(sum).values[1 : 1 + len(self.class_names)]])
 
         self.weights = self.compute_weights(dist)
@@ -1222,14 +1237,15 @@ class ISIC(tdata.Dataset):
             np.array(
                 sorted(
                     rng.choice(
-                        idxs_classwise[cl], size=int(np.round(len(idxs_classwise[cl]) * test_split)), replace=False
+                        idxs_classwise[cl],
+                        size=int(np.round(len(idxs_classwise[cl]) * test_split)),
+                        replace=False,
                     )
                 )
             )
             for cl in classes
         ]
         idxs_test = np.concatenate(idxs_test_classwise, axis=None)
-        # idxs_test = np.array(sorted(rng.choice(idxs_all, size=int(np.round(len(idxs_all) * test_split)), replace=False)))
         idxs_train = np.array(list(set(idxs_all) - set(idxs_test)))
 
         return idxs_train, idxs_test
@@ -1337,8 +1353,8 @@ class SKLearnCircles(tdata.Dataset):
         else:
             n_samples = 10000 if self.mode == "train" else 500
             samples, labels = skdata.make_circles(n_samples, shuffle=False, noise=0.2, factor=0.05)
-            for s, l in list(zip(samples, labels)):
-                self.samples.append((s, l))
+            for s, lab in list(zip(samples, labels)):
+                self.samples.append((s, lab))
 
             joblib.dump(self.samples, self.datafile)
 
@@ -1416,8 +1432,8 @@ class Swirls(tdata.Dataset):
         else:
             n_samples = 10000 if self.mode == "train" else 500
             samples, labels = self.swirl_the_swirls(n_samples)
-            for s, l in list(zip(samples, labels)):
-                self.samples.append((s, l))
+            for s, lab in list(zip(samples, labels)):
+                self.samples.append((s, lab))
 
             joblib.dump(self.samples, self.datafile)
 
@@ -1516,8 +1532,8 @@ class SKLearnBlobs(tdata.Dataset):
         else:
             n_samples = self.n_train_samples if self.mode == "train" else self.n_test_samples
             samples, labels = skdata.make_blobs(n_samples, centers=centers, cluster_std=0.2, shuffle=False)
-            for s, l in list(zip(samples, labels)):
-                self.samples.append((s, l))
+            for s, lab in list(zip(samples, labels)):
+                self.samples.append((s, lab))
 
             joblib.dump(self.samples, self.datafile)
 
