@@ -18,7 +18,13 @@ maintainers = [
     "Jim Berend <jim.berend@hhi.fraunhofer.de>",
     "Moritz Weckbecker <moritz.weckbecker@hhi.fraunhofer.de>",
 ]
-keywords = ["explainable ai", "xai", "machine learning", "deep learning", "gradient-free optimization"]
+keywords = [
+    "explainable ai",
+    "xai",
+    "machine learning",
+    "deep learning",
+    "gradient-free optimization",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Education",
@@ -39,7 +45,7 @@ exclude = [
     "nbs",
     ".gitignore",
     "minimal_example.ipynb",
-    "run_experiments.py"
+    "run_experiments.py",
 ]
 
 [tool.poetry.dependencies]
@@ -53,10 +59,19 @@ pandas = { version = "^2.2.3", optional = true }
 scikit-learn = { version = "^1.6.1", optional = true }
 matplotlib = { version = "<3.8", optional = true }
 torcheval = { version = "^0.0.7", optional = true }
+snntorch = { version = "^0.9.1", optional = true }
 
 [tool.poetry.extras]
 quickstart = ["notebook", "torcheval"]
-full = ["wandb", "notebook", "joblib", "pandas", "scikit-learn", "matplotlib", "torcheval"]
+full = [
+    "wandb",
+    "notebook",
+    "joblib",
+    "pandas",
+    "scikit-learn",
+    "matplotlib",
+    "torcheval",
+]
 
 [project]
 name = "lfprop"
@@ -65,20 +80,26 @@ description = "A package for gradient-free neural network training using LFP"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
-    {name = "Leander Weber", email="leander.weber@hhi.fraunhofer.de"},
-    {name = "Jim Berend", email="jim.berend@hhi.fraunhofer.de"},
-    {name = "Moritz Weckbecker", email="moritz.weckbecker@hhi.fraunhofer.de"},
-    {name = "Alexander Binder", email="alexander.binder@ovgu.de"},
-    {name = "Thomas Wiegand", email="thomas.wiegand@hhi.fraunhofer.de"},
-    {name = "Wojciech Samek", email="wojciech.samek@hhi.fraunhofer.de"},
-    {name = "Sebastian Lapuschkin", email="sebastian.lapuschkin@hhi.fraunhofer.de"},
+    { name = "Leander Weber", email = "leander.weber@hhi.fraunhofer.de" },
+    { name = "Jim Berend", email = "jim.berend@hhi.fraunhofer.de" },
+    { name = "Moritz Weckbecker", email = "moritz.weckbecker@hhi.fraunhofer.de" },
+    { name = "Alexander Binder", email = "alexander.binder@ovgu.de" },
+    { name = "Thomas Wiegand", email = "thomas.wiegand@hhi.fraunhofer.de" },
+    { name = "Wojciech Samek", email = "wojciech.samek@hhi.fraunhofer.de" },
+    { name = "Sebastian Lapuschkin", email = "sebastian.lapuschkin@hhi.fraunhofer.de" },
 ]
 maintainers = [
-    {name = "Leander Weber", email="leander.weber@hhi.fraunhofer.de"},
-    {name = "Jim Berend", email="jim.berend@hhi.fraunhofer.de"},
-    {name = "Moritz Weckbecker", email="moritz.weckbecker@hhi.fraunhofer.de"},
+    { name = "Leander Weber", email = "leander.weber@hhi.fraunhofer.de" },
+    { name = "Jim Berend", email = "jim.berend@hhi.fraunhofer.de" },
+    { name = "Moritz Weckbecker", email = "moritz.weckbecker@hhi.fraunhofer.de" },
 ]
-keywords = ["explainable ai", "xai", "machine learning", "deep learning", "gradient-free optimization"]
+keywords = [
+    "explainable ai",
+    "xai",
+    "machine learning",
+    "deep learning",
+    "gradient-free optimization",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Education",
@@ -97,3 +118,20 @@ Issues = "https://github.com/leanderweber/layerwise-feedback-propagation/issues"
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+# Set the maximum line length to 79.
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",   # By default, Ruff enables Flake8's E and F rules
+    "F",   # Pyflakes - F, pycodestyle - E, W
+    "W",
+    "A",   # flake8-builtins - A
+    "PLC", # Pylint - PLC, PLE, PLW
+    "PLE",
+    "PLW",
+    "I",   # isort - I
+]
