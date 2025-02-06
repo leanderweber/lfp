@@ -2,8 +2,7 @@ import copy
 from contextlib import contextmanager
 
 import torch
-from zennit import canonizers as canonizers
-from zennit import composites as composites
+from zennit import composites
 from zennit import core as zcore
 from zennit import types as ztypes
 

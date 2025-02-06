@@ -1,5 +1,5 @@
 import torchvision
-from zennit import canonizers as canonizers
+from zennit import canonizers
 from zennit import torchvision as zvision
 
 

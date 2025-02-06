@@ -215,3 +215,50 @@ class MisclassificationReward:
             * logits.sign()
         )
         return reward
+
+
+# rewards for spiking neural networks (install required dependencies via `pip install lfprop[snn]`)
+
+
+class SnnCorrectClassRewardSpikesRateCoded:  # [ ] rename!
+    def __init__(self, device):
+        """
+        Computes reward based on Correct Class. Interpretes Spike output as rate coding
+        """
+        self.device = device
+        self.saved_rewards = []
+
+    def __call__(self, *, spikes: torch.Tensor, potentials: torch.Tensor, labels: torch.Tensor):
+        """
+        Computation
+        :param spikes: Shape (n_timesteps, batchsize, output_shape)
+        :param potentials: Shape (n_timesteps, batchsize, output_shape)
+        :param labels: Shape (batchsize)
+        :return:
+        """
+
+        # Prepare one-hot labels
+        eye = torch.eye(spikes.size()[2], device=self.device)
+        one_hot = torch.stack([eye[labels] for _ in range(spikes.shape[0])], dim=0)
+
+        pos_sum = spikes.sum(dim=0, keepdims=True)
+        neg_sum = (spikes - 1).abs().sum(dim=0, keepdims=True)
+
+        pos_decay = 1 - torch.sigmoid(pos_sum - spikes.shape[0] // 2)
+        neg_decay = 1 - torch.sigmoid(neg_sum - spikes.shape[0] // 2)
+
+        # Compute reward
+        reward = torch.where(
+            one_hot == 1,
+            torch.ones_like(spikes) * pos_decay,  # Ones-like since we always desire spikes for the true class.
+            -spikes * neg_decay,
+        )
+        return reward
+
+    def get_predictions(self, *, spikes: torch.Tensor, potentials: torch.Tensor):
+        """
+        Computation
+        :param spikes: Shape (n_timesteps, batchsize, output_shape)
+        :param potentials: Shape (n_timesteps, batchsize, output_shape)
+        """
+        return spikes.sum(0).argmax(-1)
