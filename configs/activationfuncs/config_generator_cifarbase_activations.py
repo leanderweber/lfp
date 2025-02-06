@@ -52,18 +52,16 @@ for base_dataset_name in BASE_DATASET_NAMES:
                                     base_config["seed"] = seed
                                     base_config["activation"] = activation
 
-                                    base_config["base_data_path"] = (
-                                        f"/mnt/data/{base_dataset_name}"
-                                    )
+                                    base_config["base_data_path"] = f"/mnt/data/{base_dataset_name}"
                                     base_config["clip_updates"] = clip_updates
                                     base_config["weight_decay"] = weight_decay
                                     base_config["scheduler_name"] = scheduler_name
                                     base_config["norm_backward"] = norm_backward
                                     base_config["wandb_project_name"] = (
-                                        f'activationfuncs-{base_dataset_name}-transfer-{base_config["model_name"]}'
+                                        f"activationfuncs-{base_dataset_name}-transfer-{base_config['model_name']}"
                                     )
 
-                                    config_name = f'{base_config["base_dataset_name"]}_{base_config["model_name"]}_{base_config["activation"]}_{base_config["base_lr"]}_{base_config["propagator_name"]}_{base_config["norm_backward"]}_{base_config["clip_updates"]}_{base_config["weight_decay"]}_{base_config["scheduler_name"]}_{base_config["seed"]}'
+                                    config_name = f"{base_config['base_dataset_name']}_{base_config['model_name']}_{base_config['activation']}_{base_config['base_lr']}_{base_config['propagator_name']}_{base_config['norm_backward']}_{base_config['clip_updates']}_{base_config['weight_decay']}_{base_config['scheduler_name']}_{base_config['seed']}"
 
                                     with open(
                                         f"{config_dir}/cluster/{config_name}_basemodel.yaml",

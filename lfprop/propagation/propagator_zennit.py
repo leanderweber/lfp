@@ -2,13 +2,13 @@ import copy
 from contextlib import contextmanager
 
 import torch
-
 from zennit import canonizers as canonizers
 from zennit import composites as composites
 from zennit import core as zcore
 from zennit import types as ztypes
 
 from . import LAYER_MAP_BASE
+
 
 def collect_leaves(module):
     """
@@ -64,11 +64,7 @@ def mod_params(module, modifier, param_keys=None, require_params=True):
 
         missing = [key for key in param_keys if not hasattr(module, key)]
         if require_params and missing:
-            raise RuntimeError(
-                "Module {} requires missing parameters: '{}'".format(
-                    module, "', '".join(missing)
-                )
-            )
+            raise RuntimeError("Module {} requires missing parameters: '{}'".format(module, "', '".join(missing)))
 
         for key in param_keys:
             if key not in missing:
@@ -84,7 +80,7 @@ def mod_params(module, modifier, param_keys=None, require_params=True):
 
                     # Store modded params
                     if hasattr(module, "stored_modparams"):
-                        if not key in module.stored_modparams.keys():
+                        if key not in module.stored_modparams.keys():
                             module.stored_modparams[key] = []
                         getattr(module, key).requires_grad_()
                         getattr(module, key).retain_grad()
@@ -171,12 +167,7 @@ class LFPHook(zcore.Hook):
         }
         supplied = {key for key, val in modifiers.items() if val is not None}
         num_mods = len(modifiers[next(iter(supplied))]) if supplied else 1
-        modifiers.update(
-            {
-                key: (self._default_modifier,) * num_mods
-                for key in set(modifiers) - supplied
-            }
-        )
+        modifiers.update({key: (self._default_modifier,) * num_mods for key in set(modifiers) - supplied})
 
         if gradient_mapper is None:
             gradient_mapper = self._default_gradient_mapper
@@ -231,20 +222,17 @@ class LFPHook(zcore.Hook):
                     grad_output = None
 
         original_input = self.stored_tensors["input"][0].detach()
-        param_kwargs = dict(
-            param_keys=self.param_keys, require_params=self.require_params
-        )
+        param_kwargs = dict(param_keys=self.param_keys, require_params=self.require_params)
         inputs = []
         outputs = []
 
         with mod_param_storage_context(module) as param_storing_module:
-            for in_mod, param_mod, out_mod in zip(
-                self.input_modifiers, self.param_modifiers, self.output_modifiers
-            ):
+            for in_mod, param_mod, out_mod in zip(self.input_modifiers, self.param_modifiers, self.output_modifiers):
                 input = in_mod(original_input).requires_grad_()
-                with mod_params(
-                    param_storing_module, param_mod, **param_kwargs
-                ) as modified, torch.autograd.enable_grad():
+                with (
+                    mod_params(param_storing_module, param_mod, **param_kwargs) as modified,
+                    torch.autograd.enable_grad(),
+                ):
                     output = modified.forward(input)
                     output = out_mod(output)
 
@@ -262,9 +250,7 @@ class LFPHook(zcore.Hook):
             input_relevance = self.reducer(inputs, input_gradients)
 
             # Parameter Relevance
-            param_keys = [
-                name for name, _ in param_storing_module.named_parameters(recurse=False)
-            ]
+            param_keys = [name for name, _ in param_storing_module.named_parameters(recurse=False)]
             for key in param_keys:
                 param_datas = param_storing_module.stored_modparams[key]
                 param_gradients = torch.autograd.grad(
@@ -286,10 +272,7 @@ class LFPHook(zcore.Hook):
                 # Set Parameter Grad
                 getattr(module, key).feedback = param_reward
 
-        return tuple(
-            input_relevance if original.shape == input_relevance.shape else None
-            for original in grad_input
-        )
+        return tuple(input_relevance if original.shape == input_relevance.shape else None for original in grad_input)
 
     def copy(self):
         """Return a copy of this hook.
@@ -335,10 +318,7 @@ class LFPEpsilon(LFPHook):
             input_modifiers=[lambda input: input],
             param_modifiers=[lambda param, _: param],
             output_modifiers=[lambda output: output],
-            gradient_mapper=(
-                lambda out_grad, outputs: out_grad
-                / zcore.stabilize(outputs[0], epsilon)
-            ),
+            gradient_mapper=(lambda out_grad, outputs: out_grad / zcore.stabilize(outputs[0], epsilon)),
             reducer=(lambda inputs, gradients: inputs[0] * gradients[0]),
         )
 

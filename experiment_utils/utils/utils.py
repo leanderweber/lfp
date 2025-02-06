@@ -5,6 +5,7 @@ import random
 import joblib
 import numpy as np
 import torch
+
 from lfprop.propagation import propagator_zennit
 
 from ..model import models
@@ -104,12 +105,7 @@ def norm_bw_hook(module, grad_input, grad_output):
         retlist = []
         for g in grad_input:
             if g is not None:
-                retlist.append(
-                    g
-                    / torch.where(
-                        g.abs().max() > 0, g.abs().max(), torch.ones_like(g.abs().max())
-                    )
-                )
+                retlist.append(g / torch.where(g.abs().max() > 0, g.abs().max(), torch.ones_like(g.abs().max())))
             else:
                 retlist.append(None)
         ret = tuple(retlist)
@@ -135,7 +131,6 @@ def print_bw_hook(module, grad_input, grad_output):
                 print(grad_input[0].amin(), grad_input[0].mean(), grad_input[0].amax())
     else:
         if grad_input is not None:
-
             print("--------------------------------")
             print(module)
             print(grad_input[0].amin(), grad_input[0].mean(), grad_input[0].amax())
@@ -181,9 +176,7 @@ def register_forward_hooks(model):
 
     forward_handles = []
     for layer in layers:
-        forward_handles.append(
-            layer.register_forward_pre_hook(propagator_zennit.save_input_hook)
-        )
+        forward_handles.append(layer.register_forward_pre_hook(propagator_zennit.save_input_hook))
 
     return forward_handles
 

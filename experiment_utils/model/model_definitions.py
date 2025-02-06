@@ -1,10 +1,12 @@
 import torch
 import torch.nn as tnn
 
+
 class LeNet(tnn.Module):
     """
     Small LeNet
     """
+
     def __init__(self, n_channels, n_outputs, activation=tnn.ReLU):
         super().__init__()
 
@@ -20,7 +22,7 @@ class LeNet(tnn.Module):
 
         # Classifier
         self.classifier = tnn.Sequential(
-            tnn.Linear(256 if n_channels==1 else 400, 120), 
+            tnn.Linear(256 if n_channels == 1 else 400, 120),
             activation(),
             tnn.Dropout(),
             tnn.Linear(120, 84),
@@ -41,10 +43,11 @@ class LeNet(tnn.Module):
 
         # Return output
         return x
-    
+
+
 class CifarVGGLike(tnn.Module):
-    """
-    """
+    """ """
+
     def __init__(self, n_channels, n_outputs, activation=tnn.ReLU):
         super().__init__()
 
@@ -55,24 +58,21 @@ class CifarVGGLike(tnn.Module):
             tnn.Conv2d(32, 64, 3, padding=1),
             activation(),
             tnn.MaxPool2d(2, 2),
-
             tnn.Conv2d(64, 128, 3, padding=1),
             activation(),
             tnn.Conv2d(128, 128, 3, padding=1),
             activation(),
             tnn.MaxPool2d(2, 2),
-
             tnn.Conv2d(128, 256, 3, padding=1),
             activation(),
             tnn.Conv2d(256, 256, 3, padding=1),
             activation(),
             tnn.MaxPool2d(2, 2),
-
         )
 
         # Classifier
         self.classifier = tnn.Sequential(
-            tnn.Linear(256*4*4 if n_channels==3 else 256*3*3, 1024), 
+            tnn.Linear(256 * 4 * 4 if n_channels == 3 else 256 * 3 * 3, 1024),
             activation(),
             tnn.Dropout(),
             tnn.Linear(1024, 512),
@@ -94,9 +94,10 @@ class CifarVGGLike(tnn.Module):
         # Return output
         return x
 
+
 class CifarVGGLikeBN(tnn.Module):
-    """
-    """
+    """ """
+
     def __init__(self, n_channels, n_outputs, activation=tnn.ReLU):
         super().__init__()
 
@@ -109,7 +110,6 @@ class CifarVGGLikeBN(tnn.Module):
             tnn.BatchNorm2d(64),
             activation(),
             tnn.MaxPool2d(2, 2),
-
             tnn.Conv2d(64, 128, 3, padding=1),
             tnn.BatchNorm2d(128),
             activation(),
@@ -117,7 +117,6 @@ class CifarVGGLikeBN(tnn.Module):
             tnn.BatchNorm2d(128),
             activation(),
             tnn.MaxPool2d(2, 2),
-
             tnn.Conv2d(128, 256, 3, padding=1),
             tnn.BatchNorm2d(256),
             activation(),
@@ -125,12 +124,11 @@ class CifarVGGLikeBN(tnn.Module):
             tnn.BatchNorm2d(256),
             activation(),
             tnn.MaxPool2d(2, 2),
-
         )
 
         # Classifier
         self.classifier = tnn.Sequential(
-            tnn.Linear(256*4*4, 1024), 
+            tnn.Linear(256 * 4 * 4, 1024),
             activation(),
             tnn.Dropout(),
             tnn.Linear(1024, 512),
@@ -152,10 +150,12 @@ class CifarVGGLikeBN(tnn.Module):
         # Return output
         return x
 
+
 class DenseOnly(tnn.Module):
     """
     Small dense network
     """
+
     def __init__(self, n_channels, n_outputs, activation=tnn.LeakyReLU, activation_kwargs=None):
         super().__init__()
 
@@ -187,12 +187,13 @@ class DenseOnly(tnn.Module):
 
         # Return output
         return x
-    
+
 
 class ToyDataDense(tnn.Module):
     """
     Dense Model for Toy Data
     """
+
     def __init__(self, n_channels, n_outputs, activation=tnn.ReLU, activation_kwargs=None):
         super().__init__()
 
@@ -219,6 +220,3 @@ class ToyDataDense(tnn.Module):
 
         # Return output
         return x
-    
-
-

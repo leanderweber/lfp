@@ -1,38 +1,64 @@
 import torch
 import torch.nn as nn
-from torchvision.models.resnet import BasicBlock, Bottleneck, ResNet, conv1x1, _ovewrite_named_param
-from torchvision.models.resnet import register_model, handle_legacy_interface
-from torchvision.models.resnet import Any, Optional
-from torchvision.models.resnet import ResNet101_Weights, ResNet152_Weights, ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNeXt101_32X8D_Weights, ResNeXt101_64X4D_Weights, ResNeXt50_32X4D_Weights, Wide_ResNet101_2_Weights, Wide_ResNet50_2_Weights
+from torchvision.models.resnet import (
+    Any,
+    BasicBlock,
+    Bottleneck,
+    Optional,
+    ResNet,
+    ResNet18_Weights,
+    ResNet34_Weights,
+    ResNet50_Weights,
+    ResNet101_Weights,
+    ResNet152_Weights,
+    ResNeXt50_32X4D_Weights,
+    ResNeXt101_32X8D_Weights,
+    ResNeXt101_64X4D_Weights,
+    Wide_ResNet50_2_Weights,
+    Wide_ResNet101_2_Weights,
+    _ovewrite_named_param,
+    conv1x1,
+    handle_legacy_interface,
+    register_model,
+)
 
+__all__ = [
+    "ResNet",
+    "resnet18",
+    "resnet34",
+    "resnet50",
+    "resnet101",
+    "resnet152",
+    "resnext50_32x4d",
+    "resnext101_32x8d",
+    "wide_custom_resnet50_2",
+    "wide_custom_resnet101_2",
+]
 
-
-__all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
-           'resnet152', 'resnext50_32x4d', 'resnext101_32x8d',
-           'wide_custom_resnet50_2', 'wide_custom_resnet101_2']
 
 class Sum(nn.Module):
-
     def __init__(self):
         super(Sum, self).__init__()
 
     def forward(self, x, identity):
-
         sum = x + identity
 
         return sum
 
-class CustomBasicBlock(BasicBlock):
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None):
-        super(CustomBasicBlock, self).__init__(inplanes, planes, stride, downsample, groups, base_width, dilation, norm_layer)
+class CustomBasicBlock(BasicBlock):
+    def __init__(
+        self, inplanes, planes, stride=1, downsample=None, groups=1, base_width=64, dilation=1, norm_layer=None
+    ):
+        super(CustomBasicBlock, self).__init__(
+            inplanes, planes, stride, downsample, groups, base_width, dilation, norm_layer
+        )
         self.sum = Sum()
 
     def forward(self, x):
         # if hasattr(self, "bn1"):
         #     del self.bn1
-        #     del self.bn2 
+        #     del self.bn2
         # if hasattr(self, "downsample"):
         #     del self.downsample
         identity = x
@@ -45,7 +71,7 @@ class CustomBasicBlock(BasicBlock):
         out = self.bn2(out)
 
         if self.downsample is not None:
-           identity = self.downsample(x)
+            identity = self.downsample(x)
 
         out = self.sum(out, identity)
         out = self.relu(out)
@@ -54,17 +80,18 @@ class CustomBasicBlock(BasicBlock):
 
 
 class CustomBottleneck(Bottleneck):
-
-    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None):
-        super(CustomBottleneck, self).__init__(inplanes, planes, stride, downsample, groups,
-                 base_width, dilation, norm_layer)
+    def __init__(
+        self, inplanes, planes, stride=1, downsample=None, groups=1, base_width=64, dilation=1, norm_layer=None
+    ):
+        super(CustomBottleneck, self).__init__(
+            inplanes, planes, stride, downsample, groups, base_width, dilation, norm_layer
+        )
         self.sum = Sum()
 
     def forward(self, x):
         # if hasattr(self, "bn1"):
         #     del self.bn1
-        #     del self.bn2 
+        #     del self.bn2
         #     del self.bn3
         # if hasattr(self, "downsample"):
         #     del self.downsample
@@ -81,8 +108,8 @@ class CustomBottleneck(Bottleneck):
         out = self.conv3(out)
 
         if self.downsample is not None:
-           identity = self.downsample(x)
-           
+            identity = self.downsample(x)
+
         out = self.sum(out, identity)
         out = self.relu(out)
 
@@ -90,16 +117,29 @@ class CustomBottleneck(Bottleneck):
 
 
 class CustomResNet(ResNet):
-
-    def __init__(self, block, layers, num_classes=1000, zero_init_residual=False,
-                 groups=1, width_per_group=64, replace_stride_with_dilation=None,
-                 norm_layer=None):
-        super(CustomResNet, self).__init__(block, layers, num_classes, zero_init_residual,
-                 groups, width_per_group, replace_stride_with_dilation,
-                 norm_layer)
+    def __init__(
+        self,
+        block,
+        layers,
+        num_classes=1000,
+        zero_init_residual=False,
+        groups=1,
+        width_per_group=64,
+        replace_stride_with_dilation=None,
+        norm_layer=None,
+    ):
+        super(CustomResNet, self).__init__(
+            block,
+            layers,
+            num_classes,
+            zero_init_residual,
+            groups,
+            width_per_group,
+            replace_stride_with_dilation,
+            norm_layer,
+        )
 
     def _make_layer(self, block, planes, blocks, stride=1, dilate=False):
-
         norm_layer = self._norm_layer
         downsample = None
         previous_dilation = self.dilation
@@ -113,13 +153,23 @@ class CustomResNet(ResNet):
             )
 
         layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample, self.groups,
-                            self.base_width, previous_dilation, norm_layer))
+        layers.append(
+            block(
+                self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer
+            )
+        )
         self.inplanes = planes * block.expansion
         for _ in range(1, blocks):
-            layers.append(block(self.inplanes, planes, groups=self.groups,
-                                base_width=self.base_width, dilation=self.dilation,
-                                norm_layer=norm_layer))
+            layers.append(
+                block(
+                    self.inplanes,
+                    planes,
+                    groups=self.groups,
+                    base_width=self.base_width,
+                    dilation=self.dilation,
+                    norm_layer=norm_layer,
+                )
+            )
 
         return torch.nn.Sequential(*layers)
 
@@ -157,6 +207,7 @@ def _custom_resnet(block, layers, weights, progress, **kwargs):
         model.load_state_dict(weights.get_state_dict(progress=progress, check_hash=True))
 
     return model
+
 
 @register_model()
 @handle_legacy_interface(weights=("pretrained", ResNet18_Weights.IMAGENET1K_V1))

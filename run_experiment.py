@@ -14,6 +14,8 @@ import torch.nn as tnn
 import torchvision
 import wandb
 import yaml
+from tqdm import tqdm
+
 from experiment_utils.data import dataloaders as dataloaders
 from experiment_utils.data import datasets as datasets
 from experiment_utils.data import transforms as transforms
@@ -22,7 +24,6 @@ from experiment_utils.model import models as models
 from experiment_utils.utils.utils import register_backward_normhooks, set_random_seeds
 from lfprop.propagation import propagator_lxt as propagator
 from lfprop.rewards import rewards as rewards
-from tqdm import tqdm
 
 # os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
@@ -68,17 +69,9 @@ def nostdout(verbose=True):
 
 
 def get_head(model):
-    if isinstance(model, torchvision.models.VGG) or isinstance(
-        model, torchvision.models.efficientnet.EfficientNet
-    ):
-        head = [
-            m
-            for m in model.classifier.modules()
-            if not isinstance(m, torch.nn.Sequential)
-        ][-1]
-    elif isinstance(model, torchvision.models.ResNet) or isinstance(
-        model, torchvision.models.Inception3
-    ):
+    if isinstance(model, torchvision.models.VGG) or isinstance(model, torchvision.models.efficientnet.EfficientNet):
+        head = [m for m in model.classifier.modules() if not isinstance(m, torch.nn.Sequential)][-1]
+    elif isinstance(model, torchvision.models.ResNet) or isinstance(model, torchvision.models.Inception3):
         head = model.fc
     else:
         head = model.classifier[-1]
@@ -138,9 +131,7 @@ class Trainer:
 
     def fill_update_log(self):
         for name, param in self.model.named_parameters():
-
             if "weight" in name:
-
                 # Initialization of Lists
                 for key in self.update_log.keys():
                     if name not in self.update_log[key].keys():
@@ -152,28 +143,15 @@ class Trainer:
 
                 # Append current update statistics
                 if param.grad is not None:
-
                     # Local Stats
-                    self.update_log["local_mean"][name].append(
-                        param.grad.data.detach().mean().cpu().numpy()
-                    )
-                    self.update_log["local_abs_mean"][name].append(
-                        param.grad.data.detach().abs().mean().cpu().numpy()
-                    )
-                    self.update_log["local_var"][name].append(
-                        param.grad.data.detach().var().cpu().numpy()
-                    )
-                    self.update_log["local_abs_var"][name].append(
-                        param.grad.data.detach().var().cpu().numpy()
-                    )
+                    self.update_log["local_mean"][name].append(param.grad.data.detach().mean().cpu().numpy())
+                    self.update_log["local_abs_mean"][name].append(param.grad.data.detach().abs().mean().cpu().numpy())
+                    self.update_log["local_var"][name].append(param.grad.data.detach().var().cpu().numpy())
+                    self.update_log["local_abs_var"][name].append(param.grad.data.detach().var().cpu().numpy())
 
                     # Running Stats
-                    self.running_update_stats["running_sum"][
-                        name
-                    ] += param.grad.data.detach().view(-1)
-                    self.running_update_stats["running_sumsq"][name] += (
-                        param.grad.data.detach().view(-1) ** 2
-                    )
+                    self.running_update_stats["running_sum"][name] += param.grad.data.detach().view(-1)
+                    self.running_update_stats["running_sumsq"][name] += param.grad.data.detach().view(-1) ** 2
 
                     if self.global_step > 1:
                         self.update_log["cos_dist_to_running_mean"][name].append(
@@ -194,27 +172,18 @@ class Trainer:
                         )
 
                     self.running_update_stats["running_mean"][name] = (
-                        self.running_update_stats["running_sum"][name]
-                        / self.global_step
+                        self.running_update_stats["running_sum"][name] / self.global_step
                     )
                     self.running_update_stats["running_var"][name] = (
-                        self.running_update_stats["running_sumsq"][name]
-                        / self.global_step
+                        self.running_update_stats["running_sumsq"][name] / self.global_step
                         - self.running_update_stats["running_mean"][name] ** 2
                     )
 
                     self.update_log["running_var_mean"][name].append(
-                        self.running_update_stats["running_var"][name]
-                        .mean()
-                        .cpu()
-                        .numpy()
+                        self.running_update_stats["running_var"][name].mean().cpu().numpy()
                     )
                     self.update_log["running_l2"][name].append(
-                        torch.sqrt(
-                            (self.running_update_stats["running_mean"][name] ** 2).sum()
-                        )
-                        .cpu()
-                        .numpy()
+                        torch.sqrt((self.running_update_stats["running_mean"][name] ** 2).sum()).cpu().numpy()
                     )
 
                     self.last_param_updates[name] = param.grad.data.detach().view(-1)
@@ -235,9 +204,7 @@ class Trainer:
             reward.backward()
 
             if self.clip_updates:
-                torch.nn.utils.clip_grad_norm_(
-                    self.model.parameters(), self.clip_update_threshold, 2.0
-                )
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clip_update_threshold, 2.0)
 
             self.optimizer.step()
 
@@ -254,7 +221,6 @@ class Trainer:
         with torch.enable_grad():
             self.optimizer.zero_grad()
             with self.lfp_composite.context(self.model) as modified:
-
                 if self.global_step == 0:
                     print(modified)
 
@@ -263,22 +229,16 @@ class Trainer:
 
                 # Calculate reward
                 # Do like this to avoid tensors being kept in memory
-                reward = torch.from_numpy(
-                    self.criterion(outputs, labels).detach().cpu().numpy()
-                ).to(device)
+                reward = torch.from_numpy(self.criterion(outputs, labels).detach().cpu().numpy()).to(device)
 
                 # Write LFP Values into .grad attributes
-                input_reward = torch.autograd.grad(
-                    (outputs,), (inputs,), grad_outputs=(reward,), retain_graph=False
-                )[0]
+                input_reward = torch.autograd.grad((outputs,), (inputs,), grad_outputs=(reward,), retain_graph=False)[0]
 
                 for name, param in self.model.named_parameters():
                     param.grad = -param.feedback
 
                 if self.clip_updates:
-                    torch.nn.utils.clip_grad_norm_(
-                        self.model.parameters(), self.clip_update_threshold, 2.0
-                    )
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clip_update_threshold, 2.0)
 
                 self.optimizer.step()
 
@@ -305,7 +265,6 @@ class Trainer:
         savefrequency=1,
         fromscratch=False,
     ):
-
         self.store_head(dataset_name)
 
         loader = dataloaders.get_dataloader(
@@ -320,9 +279,7 @@ class Trainer:
 
         eval_stats_train = self.eval(dataset, dataset_name)
         eval_stats_base = self.eval(test_dataset_base, test_dataset_base_name)
-        eval_stats_transfer = self.eval(
-            test_dataset_transfer, test_dataset_transfer_name
-        )
+        eval_stats_transfer = self.eval(test_dataset_transfer, test_dataset_transfer_name)
 
         print(
             "Train: Initial Eval: (Criterion) {:.2f}; (Accuracy) {:.2f}".format(
@@ -371,9 +328,7 @@ class Trainer:
             for name, param in self.model.named_parameters():
                 if name not in self.sparsity_log.keys():
                     self.sparsity_log[name] = []
-                self.sparsity_log[name].append(
-                    self.sparsity_func(param).detach().cpu().numpy()
-                )
+                self.sparsity_log[name].append(self.sparsity_func(param).detach().cpu().numpy())
 
         for epoch in range(epochs):
             with tqdm(total=len(loader), disable=not verbose) as pbar:
@@ -408,12 +363,8 @@ class Trainer:
                         self.store_head(dataset_name)
 
                         eval_stats_train = self.eval(dataset, dataset_name)
-                        eval_stats_base = self.eval(
-                            test_dataset_base, test_dataset_base_name
-                        )
-                        eval_stats_transfer = self.eval(
-                            test_dataset_transfer, test_dataset_transfer_name
-                        )
+                        eval_stats_base = self.eval(test_dataset_base, test_dataset_base_name)
+                        eval_stats_transfer = self.eval(test_dataset_transfer, test_dataset_transfer_name)
 
                         self.acc_log["train"].append(
                             float(eval_stats_train["accuracy_p050"])
@@ -447,9 +398,7 @@ class Trainer:
                                 "acc_log_transfer": (
                                     float(eval_stats_transfer["accuracy_p050"])
                                     if "accuracy_p050" in eval_stats_transfer.keys()
-                                    else float(
-                                        eval_stats_transfer["micro_accuracy_top1"]
-                                    )
+                                    else float(eval_stats_transfer["micro_accuracy_top1"])
                                 ),
                             }
                         )
@@ -458,9 +407,7 @@ class Trainer:
                         for name, param in self.model.named_parameters():
                             if name not in self.sparsity_log.keys():
                                 self.sparsity_log[name] = []
-                            self.sparsity_log[name].append(
-                                self.sparsity_func(param).detach().cpu().numpy()
-                            )
+                            self.sparsity_log[name].append(self.sparsity_func(param).detach().cpu().numpy())
 
                     pbar.update(1)
 
@@ -472,9 +419,7 @@ class Trainer:
             eval_stats_train = self.eval(dataset, dataset_name)
             eval_stats_base = self.eval(test_dataset_base, test_dataset_base_name)
             # print("TODO: recompute train/base stats")
-            eval_stats_transfer = self.eval(
-                test_dataset_transfer, test_dataset_transfer_name
-            )
+            eval_stats_transfer = self.eval(test_dataset_transfer, test_dataset_transfer_name)
 
             print(
                 "Train: Epoch {}/{}: (Criterion) {:.2f}; (Accuracy) {:.2f}".format(
@@ -518,16 +463,14 @@ class Trainer:
             logdict = {"epoch": epoch + 1}
             logdict.update({"train_" + k: v for k, v in eval_stats_train.items()})
             logdict.update({"val_base_" + k: v for k, v in eval_stats_base.items()})
-            logdict.update(
-                {"val_transfer_" + k: v for k, v in eval_stats_transfer.items()}
-            )
+            logdict.update({"val_transfer_" + k: v for k, v in eval_stats_transfer.items()})
             wandb.log(logdict)
 
             self.global_epoch += 1
 
             if savepath:
                 if epoch % savefrequency == 0:
-                    self.save(savepath, savename, f"ep-{epoch+1}")
+                    self.save(savepath, savename, f"ep-{epoch + 1}")
                 self.save(savepath, savename, "last")
 
                 accuracy = (
@@ -540,7 +483,6 @@ class Trainer:
                     self.best_acc = accuracy
 
     def eval(self, dataset, dataset_name):
-
         self.load_evalmodel(dataset_name)
 
         loader = dataloaders.get_dataloader(
@@ -614,9 +556,7 @@ class Trainer:
 
     def load(self, savepath, savename, saveappendage):
         if os.path.exists(os.path.join(savepath, f"{savename}-{saveappendage}.pt")):
-            checkpoint = torch.load(
-                os.path.join(savepath, f"{savename}-{saveappendage}.pt")
-            )
+            checkpoint = torch.load(os.path.join(savepath, f"{savename}-{saveappendage}.pt"))
             if self.model:
                 self.model.load_state_dict(checkpoint["model"])
             if self.optimizer:
@@ -695,7 +635,7 @@ def run_training_transfer(
     os.makedirs(wandbpath, exist_ok=True)
 
     # Checkpoint Path
-    ckpt_path = os.path.join(savepath, f"ckpts")
+    ckpt_path = os.path.join(savepath, "ckpts")
     os.makedirs(ckpt_path, exist_ok=True)
 
     # Performance Metrics Path
@@ -813,9 +753,7 @@ def run_training_transfer(
 
     # Replace with transfer head
     if model_name in models.MODEL_MAP:
-        model.classifier[-1] = tnn.Linear(
-            model.classifier[-1].in_features, len(test_dataset_transfer.classes)
-        )
+        model.classifier[-1] = tnn.Linear(model.classifier[-1].in_features, len(test_dataset_transfer.classes))
     elif model_name in models.TORCHMODEL_MAP:
         models.replace_torchvision_last_layer(model, len(test_dataset_transfer.classes))
     model.to(device)
@@ -823,9 +761,7 @@ def run_training_transfer(
     parameters = model.parameters()
 
     # Optimization
-    optimizer = torch.optim.SGD(
-        parameters, lr=transfer_lr, momentum=momentum, weight_decay=weight_decay
-    )
+    optimizer = torch.optim.SGD(parameters, lr=transfer_lr, momentum=momentum, weight_decay=weight_decay)
 
     # LR Scheduling
     schedulers = {
@@ -837,16 +773,13 @@ def run_training_transfer(
                 (
                     1
                     if transfer_epochs == 0
-                    else transfer_epochs
-                    * int(np.ceil(len(train_dataset_transfer) / batch_size))
+                    else transfer_epochs * int(np.ceil(len(train_dataset_transfer) / batch_size))
                 ),
             ),
             True,
         ),
         "cycliclr": (
-            torch.optim.lr_scheduler.CyclicLR(
-                optimizer, transfer_lr * 0.001, transfer_lr
-            ),
+            torch.optim.lr_scheduler.CyclicLR(optimizer, transfer_lr * 0.001, transfer_lr),
             True,
         ),
         "steplr": (
@@ -883,7 +816,7 @@ def run_training_transfer(
 
     print("Training Transfer...")
     saveappendage = "last"
-    savename = f"transfer-model"
+    savename = "transfer-model"
     trainer.train(
         epochs=transfer_epochs,
         dataset=train_dataset_transfer,
@@ -975,7 +908,7 @@ def run_training_base(
     os.makedirs(wandbpath, exist_ok=True)
 
     # Checkpoint Path
-    ckpt_path = os.path.join(savepath, f"ckpts")
+    ckpt_path = os.path.join(savepath, "ckpts")
     os.makedirs(ckpt_path, exist_ok=True)
 
     # Performance Metrics Path
@@ -1069,9 +1002,7 @@ def run_training_base(
 
     # Replace with base head
     if model_name in models.MODEL_MAP:
-        model.classifier[-1] = tnn.Linear(
-            model.classifier[-1].in_features, len(test_dataset_base.classes)
-        )
+        model.classifier[-1] = tnn.Linear(model.classifier[-1].in_features, len(test_dataset_base.classes))
     elif model_name in models.TORCHMODEL_MAP:
         models.replace_torchvision_last_layer(model, len(test_dataset_base.classes))
     model.to(device)
@@ -1079,9 +1010,7 @@ def run_training_base(
     parameters = model.parameters()
 
     # Optimization
-    optimizer = torch.optim.SGD(
-        parameters, lr=base_lr, momentum=momentum, weight_decay=weight_decay
-    )
+    optimizer = torch.optim.SGD(parameters, lr=base_lr, momentum=momentum, weight_decay=weight_decay)
 
     # LR Scheduling
     schedulers = {
@@ -1090,12 +1019,7 @@ def run_training_base(
             torch.optim.lr_scheduler.OneCycleLR(
                 optimizer,
                 base_lr,
-                (
-                    1
-                    if base_epochs == 0
-                    else base_epochs
-                    * int(np.ceil(len(train_dataset_base) / batch_size))
-                ),
+                (1 if base_epochs == 0 else base_epochs * int(np.ceil(len(train_dataset_base) / batch_size))),
             ),
             True,
         ),
@@ -1133,7 +1057,7 @@ def run_training_base(
 
     print("Training Base Model...")
     saveappendage = "last"
-    savename = f"base-model"
+    savename = "base-model"
     trainer.train(
         epochs=base_epochs,
         dataset=train_dataset_base,
@@ -1176,7 +1100,6 @@ def get_args():
 
 
 if __name__ == "__main__":
-
     print("Starting script...")
 
     args = get_args()

@@ -25,11 +25,7 @@ def get_dataset(dataset_name, root_path, transform, mode, **kwargs):
 
     # Check if mode is valid
     if mode not in ["train", "test"]:
-        raise ValueError(
-            "Mode '{}' not supported. Mode needs to be one of 'train', 'test'".format(
-                mode
-            )
-        )
+        raise ValueError("Mode '{}' not supported. Mode needs to be one of 'train', 'test'".format(mode))
 
     # Map mode (kinda illegal but so that imagenet works)
     if (dataset_name == "imagenet") and mode == "test":
@@ -65,7 +61,7 @@ def get_dataset(dataset_name, root_path, transform, mode, **kwargs):
                     "train": mode == "train",
                     "mode": mode,
                 },
-            }
+            },
         )
     else:
         dataset = DATASET_MAPPING[dataset_name](

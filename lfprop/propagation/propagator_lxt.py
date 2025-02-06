@@ -4,7 +4,6 @@ from lxt import functional as lfunctional
 from lxt import rules as lrules
 from lxt.modules import INIT_MODULE_MAPPING
 from torch import nn
-
 from zennit import types as ztypes
 
 from ..model import activations
@@ -17,9 +16,7 @@ class ParameterizableComposite(lcore.Composite):
     """
 
     def __init__(self, layer_map, canonizers=[], zennit_composite=None) -> None:
-        super(ParameterizableComposite, self).__init__(
-            layer_map, canonizers, zennit_composite
-        )
+        super(ParameterizableComposite, self).__init__(layer_map, canonizers, zennit_composite)
         self.original_inplace_states = []
 
     def _canonize_inplace_activations(self, parent: nn.Module):
@@ -28,7 +25,6 @@ class ParameterizableComposite(lcore.Composite):
         """
 
         for name, child in parent.named_children():
-
             if hasattr(child, "inplace"):
                 self.original_inplace_states.append((child, child.inplace))
                 child.inplace = False
@@ -42,16 +38,12 @@ class ParameterizableComposite(lcore.Composite):
         verbose=False,
         no_grad=True,
     ) -> None:
-
         # Activation "Canonization": remove inplace ops from activations, they don't work with LFP
         self._canonize_inplace_activations(parent)
 
-        super(ParameterizableComposite, self).register(
-            parent, dummy_inputs, tracer, verbose, no_grad
-        )
+        super(ParameterizableComposite, self).register(parent, dummy_inputs, tracer, verbose, no_grad)
 
     def remove(self):
-
         for module, inplace in self.original_inplace_states:
             module.inplace = inplace
         self.original_inplace_states = []
@@ -65,12 +57,8 @@ class ParameterizableComposite(lcore.Composite):
         """
 
         for layer_type, rule in rule_dict.items():
-
             # check if the layer_type is a string and or if the layer_type is a class and the child is an instance of it
-            if (isinstance(layer_type, str) and layer_type == child) or isinstance(
-                child, layer_type
-            ):
-
+            if (isinstance(layer_type, str) and layer_type == child) or isinstance(child, layer_type):
                 if isinstance(rule, type) and issubclass(rule, lrules.WrapModule):
                     # replace module with LXT.rules.WrapModule and attach it to parent as attribute
                     xai_module = rule(child)
@@ -83,9 +71,7 @@ class ParameterizableComposite(lcore.Composite):
                     xai_module = INIT_MODULE_MAPPING[rule](child, rule)
                     child = xai_module
                 else:
-                    raise ValueError(
-                        f"Rule {rule} must be a subclass of WrapModule or a torch.nn.Module"
-                    )
+                    raise ValueError(f"Rule {rule} must be a subclass of WrapModule or a torch.nn.Module")
 
                 setattr(parent, name, xai_module)
 
@@ -114,16 +100,12 @@ class LFPEpsilon(lrules.EpsilonRule):
     """
 
     def __init__(self, module, epsilon=1e-6, norm_backward=False, inplace=True):
-
         super(LFPEpsilon, self).__init__(module, epsilon)
         self.norm_backward = norm_backward
         self.inplace = inplace
 
     def forward(self, *inputs):
-
-        return epsilon_lfp_fn.apply(
-            self.module, self.epsilon, self.norm_backward, self.inplace, *inputs
-        )
+        return epsilon_lfp_fn.apply(self.module, self.epsilon, self.norm_backward, self.inplace, *inputs)
 
 
 class epsilon_lfp_fn(lrules.epsilon_lrp_fn):
@@ -133,7 +115,6 @@ class epsilon_lfp_fn(lrules.epsilon_lrp_fn):
 
     @staticmethod
     def forward(ctx, fn, epsilon, norm_backward, inplace, *inputs):
-
         # create boolean mask for inputs requiring gradients
         requires_grads = [True if inp.requires_grad else False for inp in inputs]
         if sum(requires_grads) == 0:
@@ -141,10 +122,7 @@ class epsilon_lfp_fn(lrules.epsilon_lrp_fn):
             return fn(*inputs)
 
         # detach inputs to avoid overwriting gradients if same input is used as multiple arguments (like in self-attention)
-        inputs = tuple(
-            inp.detach().requires_grad_() if inp.requires_grad else inp
-            for inp in inputs
-        )
+        inputs = tuple(inp.detach().requires_grad_() if inp.requires_grad else inp for inp in inputs)
 
         # get parameters to store for backward. Here, we want to accumulate reward, so we do not detach
         params = [param for _, param in fn.named_parameters(recurse=False)]
@@ -172,7 +150,6 @@ class epsilon_lfp_fn(lrules.epsilon_lrp_fn):
 
     @staticmethod
     def backward(ctx, *incoming_reward):
-
         if ctx.norm_backward:
             if isinstance(incoming_reward, tuple):
                 incoming_reward_new = []
@@ -209,33 +186,23 @@ class epsilon_lfp_fn(lrules.epsilon_lrp_fn):
         # print("OUTPUTS", outputs)
         # print("RELEVANCE", incoming_reward[0])
 
-        normed_reward = incoming_reward[0] / lfunctional._stabilize(
-            outputs, ctx.epsilon, inplace=False
-        )
+        normed_reward = incoming_reward[0] / lfunctional._stabilize(outputs, ctx.epsilon, inplace=False)
 
         # compute param reward (used to update parameters)
         for param in params:
             if not isinstance(param, tuple):
                 param = (param,)
-            param_grads = torch.autograd.grad(
-                outputs, param, normed_reward, retain_graph=True
-            )
+            param_grads = torch.autograd.grad(outputs, param, normed_reward, retain_graph=True)
             if ctx.inplace:
-                param_reward = tuple(
-                    param_grads[i].mul_(param[i].abs()) for i in range(len(param))
-                )
+                param_reward = tuple(param_grads[i].mul_(param[i].abs()) for i in range(len(param)))
             else:
-                param_reward = tuple(
-                    param_grads[i] * param[i].abs() for i in range(len(param))
-                )
+                param_reward = tuple(param_grads[i] * param[i].abs() for i in range(len(param)))
             for i in range(len(param)):
                 param[i].feedback = param_reward[i]
                 # print(param[i].feedback.abs().max())
 
         # compute input reward (= outgoing reward to propagate)
-        input_grads = torch.autograd.grad(
-            outputs, inputs, normed_reward, retain_graph=False
-        )
+        input_grads = torch.autograd.grad(outputs, inputs, normed_reward, retain_graph=False)
 
         if ctx.inplace:
             outgoing_reward = tuple(
@@ -244,8 +211,7 @@ class epsilon_lfp_fn(lrules.epsilon_lrp_fn):
             )
         else:
             outgoing_reward = tuple(
-                input_grads[i] * inputs[i] if ctx.requires_grads[i] else None
-                for i in range(len(ctx.requires_grads))
+                input_grads[i] * inputs[i] if ctx.requires_grads[i] else None for i in range(len(ctx.requires_grads))
             )
 
         # return relevance at requires_grad indices else None
@@ -257,18 +223,10 @@ class LFPEpsilonComposite(ParameterizableComposite):
         layer_map = {
             ztypes.Activation: lrules.IdentityRule,
             activations.Step: lrules.IdentityRule,
-            Sum: RuleGenerator(
-                LFPEpsilon, epsilon=epsilon, norm_backward=False, inplace=False
-            ),
-            ztypes.AvgPool: RuleGenerator(
-                LFPEpsilon, epsilon=epsilon, norm_backward=False
-            ),
-            ztypes.Linear: RuleGenerator(
-                LFPEpsilon, epsilon=epsilon, norm_backward=norm_backward
-            ),
-            ztypes.BatchNorm: RuleGenerator(
-                LFPEpsilon, epsilon=epsilon, norm_backward=norm_backward
-            ),
+            Sum: RuleGenerator(LFPEpsilon, epsilon=epsilon, norm_backward=False, inplace=False),
+            ztypes.AvgPool: RuleGenerator(LFPEpsilon, epsilon=epsilon, norm_backward=False),
+            ztypes.Linear: RuleGenerator(LFPEpsilon, epsilon=epsilon, norm_backward=norm_backward),
+            ztypes.BatchNorm: RuleGenerator(LFPEpsilon, epsilon=epsilon, norm_backward=norm_backward),
         }
 
         super().__init__(layer_map=layer_map)

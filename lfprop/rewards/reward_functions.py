@@ -115,9 +115,7 @@ class SoftmaxLossReward:
 
 
 class BoundedSoftmaxReward:
-    def __init__(
-        self, device, lower_bound=0.0, higher_bound=1.0, logit_sign_only=False, **kwargs
-    ):
+    def __init__(self, device, lower_bound=0.0, higher_bound=1.0, logit_sign_only=False, **kwargs):
         """
         Computes reward based on Correct Class
         """
@@ -142,9 +140,7 @@ class BoundedSoftmaxReward:
             1.0,
             torch.nn.functional.softmax(logits, dim=1),
         )
-        regularized_softmax = torch.where(
-            regularized_softmax < self.lower_bound, 0.0, regularized_softmax
-        )
+        regularized_softmax = torch.where(regularized_softmax < self.lower_bound, 0.0, regularized_softmax)
 
         # Compute reward
         if self.logit_sign_only:
@@ -212,9 +208,7 @@ class MisclassificationReward:
 
         reward = (
             torch.where(
-                torch.stack(
-                    [logits[l] > logits[l][label] for l, label in enumerate(labels)]
-                ),
+                torch.stack([logits[l] > logits[l][label] for l, label in enumerate(labels)]),
                 -1,
                 0,
             )

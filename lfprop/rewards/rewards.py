@@ -1,10 +1,10 @@
-from . import reward_functions
 import torch
-    
+
+from . import reward_functions
+
+
 class CustomCrossEntropyLoss(torch.nn.Module):
-
     def __init__(self, *args, lower_bound=0.0, higher_bound=1.0, logit_sign_only=False, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         self.lower_bound = lower_bound
@@ -12,11 +12,10 @@ class CustomCrossEntropyLoss(torch.nn.Module):
         self.logit_sign_only = logit_sign_only
 
     def tensor_backward_hook(self, grad):
-
         # This completely overwrites the backward pass with the correct derivative
-        #eye = torch.eye(self.stored_softmax.size()[1], device=self.stored_softmax.device)
-        #one_hot = eye[self.stored_target]
-        #retval = (self.stored_softmax-one_hot)
+        # eye = torch.eye(self.stored_softmax.size()[1], device=self.stored_softmax.device)
+        # one_hot = eye[self.stored_target]
+        # retval = (self.stored_softmax-one_hot)
         retval = grad
 
         if self.logit_sign_only:
@@ -24,17 +23,20 @@ class CustomCrossEntropyLoss(torch.nn.Module):
                 g_in = retval[0]
             else:
                 g_in = retval
-            retval = (g_in/self.stored_input.abs(),)
+            retval = (g_in / self.stored_input.abs(),)
         else:
             retval = retval
 
-        retval = torch.where(self.stored_softmax>self.higher_bound, 0.0, retval[0] if isinstance(retval, tuple) else retval)
-        retval = torch.where(self.stored_softmax<self.lower_bound, 0.0, retval[0] if isinstance(retval, tuple) else retval)
+        retval = torch.where(
+            self.stored_softmax > self.higher_bound, 0.0, retval[0] if isinstance(retval, tuple) else retval
+        )
+        retval = torch.where(
+            self.stored_softmax < self.lower_bound, 0.0, retval[0] if isinstance(retval, tuple) else retval
+        )
 
         return retval
 
     def forward(self, input, target):
-
         # Store input for backward hook
         self.stored_input = input
         self.stored_target = target
@@ -47,12 +49,15 @@ class CustomCrossEntropyLoss(torch.nn.Module):
         # Compute log_softmax (approximation) of bounded softmax
         log_softmax = torch.nn.functional.log_softmax(input, dim=1)
         regularized_log_softmax = log_softmax
-        regularized_log_softmax = torch.where(softmax>self.higher_bound, 0.0, regularized_log_softmax)
-        regularized_log_softmax = torch.where(softmax<self.lower_bound, -99999.99999, regularized_log_softmax) # "Correct" would be -np.inf for the bound; we approximate with very small number
+        regularized_log_softmax = torch.where(softmax > self.higher_bound, 0.0, regularized_log_softmax)
+        regularized_log_softmax = torch.where(
+            softmax < self.lower_bound, -99999.99999, regularized_log_softmax
+        )  # "Correct" would be -np.inf for the bound; we approximate with very small number
 
         self.res = torch.nn.functional.nll_loss(regularized_log_softmax, target)
 
         return self.res
+
 
 class SigmoidBCELossWrapper(torch.nn.BCELoss):
     def __init__(self, *args, **kwargs):
@@ -62,25 +67,28 @@ class SigmoidBCELossWrapper(torch.nn.BCELoss):
         logits = torch.sigmoid(logits)
         labels = labels.view_as(logits).float()
         return super().forward(logits, labels)
-    
+
+
 class MaximizeSingleNeuron(torch.nn.MSELoss):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def forward(self, logits, labels):
-        #labels = torch.where(labels == 0, -1.0, 1.0)
+        # labels = torch.where(labels == 0, -1.0, 1.0)
         return -torch.sigmoid(logits)
-    
+
+
 class MinimizeSingleNeuron(torch.nn.MSELoss):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def forward(self, logits, labels):
-        #labels = torch.where(labels == 0, -1.0, 1.0)
+        # labels = torch.where(labels == 0, -1.0, 1.0)
         return torch.sigmoid(logits)
 
+
 REWARD_MAP = {
-    "correct-class": reward_functions.SigmoidLossReward, # Some older scripts use this
+    "correct-class": reward_functions.SigmoidLossReward,  # Some older scripts use this
     "binarysigmoidlossreward": reward_functions.BinarySigmoidLossReward,
     "maximizesingleneuronreward": reward_functions.MaximizeSingleNeuron,
     "minimizesingleneuronreward": reward_functions.MinimizeSingleNeuron,
@@ -111,10 +119,7 @@ def get_reward(reward_name, device, *args, **kwargs):
 
     # Build reward
     if reward_name in REWARD_MAP:
-        reward_func = REWARD_MAP[reward_name](
-            device=device,
-            **kwargs
-        )
+        reward_func = REWARD_MAP[reward_name](device=device, **kwargs)
     elif reward_name in LOSS_MAP:
         if reward_name == "custom-ce-loss":
             reward_func = LOSS_MAP[reward_name](**kwargs)

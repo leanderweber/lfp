@@ -1,4 +1,5 @@
 import os
+
 import yaml
 
 config_dir = "configs/imagenet-transfer/"
@@ -53,12 +54,8 @@ for transfer_dataset_name in TRANSFER_DATASET_NAMES:
                                     base_config["propagator_name"] = propagator_name
                                     base_config["seed"] = seed
 
-                                    base_config["transfer_data_path"] = (
-                                        f"/mnt/data/{transfer_dataset_name}"
-                                    )
-                                    base_config["transfer_dataset_name"] = (
-                                        transfer_dataset_name
-                                    )
+                                    base_config["transfer_data_path"] = f"/mnt/data/{transfer_dataset_name}"
+                                    base_config["transfer_dataset_name"] = transfer_dataset_name
                                     base_config["model_name"] = model_name
                                     base_config["wandb_project_name"] = (
                                         f"imagenet-to-{transfer_dataset_name}-transfer-{model_name}"
@@ -69,11 +66,9 @@ for transfer_dataset_name in TRANSFER_DATASET_NAMES:
                                     base_config["weight_decay"] = weight_decay
                                     base_config["scheduler_name"] = scheduler_name
 
-                                    base_config["base_model_path"] = (
-                                        f"/mnt/output/{seed}/ckpts/base-model-last.pt"
-                                    )
+                                    base_config["base_model_path"] = f"/mnt/output/{seed}/ckpts/base-model-last.pt"
 
-                                    config_name = f'{base_config["transfer_dataset_name"]}_{base_config["model_name"]}_{base_config["transfer_lr"]}_{base_config["propagator_name"]}_{base_config["norm_backward"]}_{base_config["clip_updates"]}_{base_config["weight_decay"]}_{base_config["scheduler_name"]}_{base_config["seed"]}'
+                                    config_name = f"{base_config['transfer_dataset_name']}_{base_config['model_name']}_{base_config['transfer_lr']}_{base_config['propagator_name']}_{base_config['norm_backward']}_{base_config['clip_updates']}_{base_config['weight_decay']}_{base_config['scheduler_name']}_{base_config['seed']}"
 
                                     with open(
                                         f"{config_dir}/cluster/{config_name}_transfermodel.yaml",

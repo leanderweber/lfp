@@ -16,9 +16,7 @@ class AddGaussianNoise:
             return tensor
 
     def __repr__(self):
-        return self.__class__.__name__ + "(mean={0}, std={1})".format(
-            self.mean, self.std
-        )
+        return self.__class__.__name__ + "(mean={0}, std={1})".format(self.mean, self.std)
 
 
 class DoubleCompose(T.Compose):
@@ -79,7 +77,6 @@ class DoubleRandomVerticalFlip(T.RandomVerticalFlip):
 
 
 class DoubleRandomApply(T.RandomApply):
-
     def __init__(self, transforms, p=0.5):
         super().__init__(transforms, p)
 
@@ -151,9 +148,9 @@ class DoubleRandomRotation(T.RandomRotation):
                 fill2 = [float(f) for f in fill2]
         angle = self.get_params(self.degrees)
 
-        return F.rotate(
-            img, angle, self.interpolation, self.expand, self.center, fill1
-        ), F.rotate(target, angle, self.interpolation, self.expand, self.center, fill2)
+        return F.rotate(img, angle, self.interpolation, self.expand, self.center, fill1), F.rotate(
+            target, angle, self.interpolation, self.expand, self.center, fill2
+        )
 
 
 def replace_tensor_value_(tensor, a, b):
@@ -189,9 +186,7 @@ TRANSFORM_MAP = {
     "food11": {
         "train": T.Compose(
             [
-                T.Resize(
-                    (224, 224), interpolation=T.functional.InterpolationMode.BICUBIC
-                ),
+                T.Resize((224, 224), interpolation=T.functional.InterpolationMode.BICUBIC),
                 T.RandomHorizontalFlip(p=0.25),
                 T.RandomVerticalFlip(p=0.25),
                 T.RandomApply(
@@ -261,9 +256,7 @@ TRANSFORM_MAP = {
     "isic": {
         "train": T.Compose(
             [
-                T.Resize(
-                    (224, 224), interpolation=T.functional.InterpolationMode.BICUBIC
-                ),
+                T.Resize((224, 224), interpolation=T.functional.InterpolationMode.BICUBIC),
                 T.RandomHorizontalFlip(p=0.25),
                 T.RandomVerticalFlip(p=0.25),
                 T.RandomApply(
@@ -331,12 +324,8 @@ TRANSFORM_MAP = {
         ),
     },
     "splitcifar100": {
-        "train": T.Compose(
-            [T.ToTensor(), T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-        ),
-        "test": T.Compose(
-            [T.ToTensor(), T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-        ),
+        "train": T.Compose([T.ToTensor(), T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]),
+        "test": T.Compose([T.ToTensor(), T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]),
     },
     "circles": {
         "train": lambda x: torch.from_numpy(x).float(),

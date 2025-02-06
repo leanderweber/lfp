@@ -21,9 +21,7 @@ def get_dataloader(dataset_name, dataset, batch_size, shuffle):
 
     # Check if dataset_name is valid
     if dataset_name not in DATALOADER_MAPPING:
-        raise ValueError(
-            "Dataloader for dataset '{}' not supported.".format(dataset_name)
-        )
+        raise ValueError("Dataloader for dataset '{}' not supported.".format(dataset_name))
 
     # Load correct dataloader
     dataloader = DATALOADER_MAPPING[dataset_name](
