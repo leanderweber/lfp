@@ -59,12 +59,41 @@ quickstart = ["notebook", "torcheval"]
 full = ["wandb", "notebook", "joblib", "pandas", "scikit-learn", "matplotlib", "torcheval"]
 
 [project]
+name = "lfprop"
+version = "0.1.0"
+description = "A package for gradient-free neural network training using LFP"
+readme = "README.md"
 license = { file = "LICENSE" }
+authors = [
+    {name = "Leander Weber", email="leander.weber@hhi.fraunhofer.de"},
+    {name = "Jim Berend", email="jim.berend@hhi.fraunhofer.de"},
+    {name = "Moritz Weckbecker", email="moritz.weckbecker@hhi.fraunhofer.de"},
+    {name = "Alexander Binder", email="alexander.binder@ovgu.de"},
+    {name = "Thomas Wiegand", email="thomas.wiegand@hhi.fraunhofer.de"},
+    {name = "Wojciech Samek", email="wojciech.samek@hhi.fraunhofer.de"},
+    {name = "Sebastian Lapuschkin", email="sebastian.lapuschkin@hhi.fraunhofer.de"},
+]
+maintainers = [
+    {name = "Leander Weber", email="leander.weber@hhi.fraunhofer.de"},
+    {name = "Jim Berend", email="jim.berend@hhi.fraunhofer.de"},
+    {name = "Moritz Weckbecker", email="moritz.weckbecker@hhi.fraunhofer.de"},
+]
+keywords = ["explainable ai", "xai", "machine learning", "deep learning", "gradient-free optimization"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 
 [project.urls]
 Source = "https://github.com/leanderweber/layerwise-feedback-propagation"
 Issues = "https://github.com/leanderweber/layerwise-feedback-propagation/issues"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
