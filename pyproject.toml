@@ -60,9 +60,11 @@ scikit-learn = { version = "^1.6.1", optional = true }
 matplotlib = { version = "<3.8", optional = true }
 torcheval = { version = "^0.0.7", optional = true }
 snntorch = { version = "^0.9.1", optional = true }
+pytorch-lightning = { version = "^2.5.0.post0", optional = true }
 
 [tool.poetry.extras]
 quickstart = ["notebook", "torcheval"]
+snn = ["snntorch"]
 full = [
     "wandb",
     "notebook",
@@ -71,7 +73,10 @@ full = [
     "scikit-learn",
     "matplotlib",
     "torcheval",
+    "snntorch",
+    "pytorch-lightning",
 ]
+
 
 [project]
 name = "lfprop"
@@ -121,7 +126,6 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.ruff]
-# Set the maximum line length to 79.
 line-length = 120
 
 [tool.ruff.lint]

@@ -12,7 +12,6 @@ import numpy as np
 import torch
 import torch.nn as tnn
 import torchvision
-import wandb
 import yaml
 from tqdm import tqdm
 
