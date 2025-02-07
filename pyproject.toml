@@ -60,6 +60,7 @@ scikit-learn = { version = "^1.6.1", optional = true }
 matplotlib = { version = "<3.8", optional = true }
 torcheval = { version = "^0.0.7", optional = true }
 snntorch = { version = "^0.9.1", optional = true }
+pytorch-lightning = { version = "^2.5.0.post0", optional = true }
 
 [tool.poetry.extras]
 quickstart = ["notebook", "torcheval"]
@@ -73,6 +74,7 @@ full = [
     "matplotlib",
     "torcheval",
     "snntorch",
+    "pytorch-lightning",
 ]
 
 
@@ -124,6 +126,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.ruff]
+extend-include = ["*.ipynb"]
 line-length = 120
 
 [tool.ruff.lint]
@@ -137,3 +140,4 @@ select = [
     "PLW",
     "I",   # isort - I
 ]
+ignore = ["PLW2901"]

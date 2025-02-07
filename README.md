@@ -120,6 +120,15 @@ The training script for these experiment is implemented in ```run_experiment.py`
 
 The hyperparameters for these experiments can be found under ```configs/```. For the paper, models were trained on an HPC-Cluster, and scripts for a configuration using [Apptainer](https://apptainer.org/) and [Slurm](https://slurm.schedmd.com/documentation.html) are included under ```cluster_run/```.
 
+For reproducing the spiking neural network experiments first run 
+```bash
+# 1. generate the config files
+python configs/spiking_neural_networks/config_generator_mnist_training.py 
+# 2. run training script 
+python run_snn_experiment.py --config_file=configs/spiking_neural_networks/cluster/<selected-config-name> 
+```
+
+
 ## :bell: Roadmap
 
 This is a first release of LFP, which does not work with all types of data or models, but we are actively working on extending the package. You can check this Roadmap to get an overview over features planned to the future.
