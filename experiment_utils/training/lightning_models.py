@@ -194,7 +194,7 @@ class SNNModel(pl.LightningModule):
     def log_results(self, preds, labels, spikes, reward, stage):
         metrics = self.compute_metrics[stage](preds, labels)
         rel_spikes = spikes.mean()
-        mean_reward = reward.mean() if reward != None else 0.0
+        mean_reward = reward.mean() if reward is not None else 0.0
         self.log_dict(
             {
                 f"{stage}_rel_spk": rel_spikes,

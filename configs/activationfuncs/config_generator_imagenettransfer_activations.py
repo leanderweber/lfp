@@ -24,7 +24,6 @@ base_config = {
     "disable_wandb": False,
     "transfer_training": True,
     "verbose": False,
-    "batch_log": False,
     "param_sparsity_log": False,
     "param_update_log": False,
 }

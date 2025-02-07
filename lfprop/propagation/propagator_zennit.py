@@ -70,7 +70,7 @@ def mod_params(module, modifier, param_keys=None, require_params=True):
                 param = getattr(module, key)
                 if param is not None:
                     stored_params[key] = param
-                    tmp = modifier(copy.deepcopy(param.data), key).sum()
+                    modifier(copy.deepcopy(param.data), key).sum()
                     setattr(
                         module,
                         key,

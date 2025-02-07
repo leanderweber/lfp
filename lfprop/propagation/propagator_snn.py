@@ -233,13 +233,13 @@ class ZplusMinusPropagator(LRPRewardPropagator):
 
         layer_Xcur = layer[0].stored_x[::-1][iteration_idx]
         layer_W = layer[0].weight
-        layer_WXcur = layer[0].stored_out[::-1][iteration_idx]
+        layer[0].stored_out[::-1][iteration_idx]
         layer_beta = layer[-1].beta
         layer_Uprev = layer[-1].stored_mem[::-1][iteration_idx + 1]
         layer_Ucur = layer[-1].stored_mem[::-1][iteration_idx]
-        layer_threshold = layer[-1].threshold
-        layer_reset = layer[-1].stored_reset[::-1][iteration_idx]
-        layer_minmem = layer[-1].minmem if layer[-1].minmem is not None else 0
+        layer[-1].threshold
+        layer[-1].stored_reset[::-1][iteration_idx]
+        layer[-1].minmem if layer[-1].minmem is not None else 0
 
         layer_feedback = iteration_feedback.view(layer_Ucur.shape)
         if hasattr(layer[-1], "stored_feedback"):

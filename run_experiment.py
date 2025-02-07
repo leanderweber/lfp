@@ -12,18 +12,16 @@ import numpy as np
 import torch
 import torch.nn as tnn
 import torchvision
-import wandb
 import yaml
 from tqdm import tqdm
 
-from experiment_utils.data import dataloaders as dataloaders
-from experiment_utils.data import datasets as datasets
-from experiment_utils.data import transforms as transforms
-from experiment_utils.evaluation import evaluate as evaluate
-from experiment_utils.model import models as models
+import wandb
+from experiment_utils.data import dataloaders, datasets, transforms
+from experiment_utils.evaluation import evaluate
+from experiment_utils.model import models
 from experiment_utils.utils.utils import register_backward_normhooks, set_random_seeds
 from lfprop.propagation import propagator_lxt as propagator
-from lfprop.rewards import rewards as rewards
+from lfprop.rewards import rewards
 
 # os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
@@ -38,13 +36,13 @@ class DummyFile(object):
 
 def gini_idx(param):
     param = param.detach().abs()
-    sorted, indices = torch.sort(param.view(-1))
+    sorted_values, indices = torch.sort(param.view(-1))
 
-    sortedidx = torch.arange(0, sorted.numel(), 1).to(param.device)
+    sortedidx = torch.arange(0, sorted_values.numel(), 1).to(param.device)
 
-    gini_numerator = 2 * (sorted * sortedidx).sum()
-    gini_denominator = sorted.numel() * sorted.sum()
-    gini_addendum = (sorted.numel() + 1) / sorted.numel()
+    gini_numerator = 2 * (sorted_values * sortedidx).sum()
+    gini_denominator = sorted_values.numel() * sorted_values.sum()
+    gini_addendum = (sorted_values.numel() + 1) / sorted_values.numel()
 
     return gini_numerator / gini_denominator - gini_addendum
 
@@ -232,7 +230,7 @@ class Trainer:
                 reward = torch.from_numpy(self.criterion(outputs, labels).detach().cpu().numpy()).to(device)
 
                 # Write LFP Values into .grad attributes
-                input_reward = torch.autograd.grad((outputs,), (inputs,), grad_outputs=(reward,), retain_graph=False)[0]
+                torch.autograd.grad((outputs,), (inputs,), grad_outputs=(reward,), retain_graph=False)[0]
 
                 for name, param in self.model.named_parameters():
                     param.grad = -param.feedback
@@ -670,15 +668,15 @@ def run_training_transfer(
     logdict.update({f"reward_{k}": v for k, v in reward_kwargs.items()})
 
     print("Intializing wandb")
-    id = wandb.util.generate_id()
+    wandb_run_id = wandb.util.generate_id()
     wandb.init(
-        id=id,
+        id=wandb_run_id,
         project=wandb_project_name,
         dir=wandbpath,
         mode="disabled" if disable_wandb else "online",
         config=logdict,
     )
-    joblib.dump(id, os.path.join(savepath, "wandb_id.joblib"))
+    joblib.dump(wandb_run_id, os.path.join(savepath, "wandb_id.joblib"))
 
     # Set seeds for reproducability
     if seed is not None:
@@ -688,7 +686,7 @@ def run_training_transfer(
     # Data
     print("Loading Initial State...")
     with nostdout(verbose=verbose):
-        train_dataset_base = datasets.get_dataset(
+        datasets.get_dataset(
             base_dataset_name,
             base_data_path,
             transforms.get_transforms(base_dataset_name, "train"),
@@ -939,15 +937,15 @@ def run_training_base(
     }
     logdict.update({f"reward_{k}": v for k, v in reward_kwargs.items()})
     print("Intializing wandb")
-    id = wandb.util.generate_id()
+    wandb_run_id = wandb.util.generate_id()
     wandb.init(
-        id=id,
+        id=wandb_run_id,
         project=wandb_project_name,
         dir=wandbpath,
         mode="disabled" if disable_wandb else "online",
         config=logdict,
     )
-    joblib.dump(id, os.path.join(savepath, "wandb_id.joblib"))
+    joblib.dump(wandb_run_id, os.path.join(savepath, "wandb_id.joblib"))
 
     # Set seeds for reproducability
     if seed is not None:

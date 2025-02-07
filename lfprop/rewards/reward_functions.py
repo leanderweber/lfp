@@ -169,7 +169,7 @@ class CorrectclassificationReward:
 
         # Prepare one-hot labels
         eye = torch.eye(logits.size()[1], device=self.device)
-        one_hot = eye[labels]
+        eye[labels]
 
         # Set all misclassifications to -1, everything else to 0
         # reward = torch.where(torch.stack([logits[l] > logits[l][label] for l, label in enumerate(labels)]), -1.0, 0.0)
@@ -204,7 +204,7 @@ class MisclassificationReward:
 
         # Prepare one-hot labels
         eye = torch.eye(logits.size()[1], device=self.device)
-        one_hot = eye[labels]
+        eye[labels]
 
         reward = (
             torch.where(

@@ -126,7 +126,6 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.ruff]
-extend-include = ["*.ipynb"]
 line-length = 120
 
 [tool.ruff.lint]
@@ -140,4 +139,3 @@ select = [
     "PLW",
     "I",   # isort - I
 ]
-ignore = ["PLW2901"]

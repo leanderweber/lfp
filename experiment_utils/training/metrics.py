@@ -11,9 +11,7 @@ class MultiClassMetrics:
         print("\n→ Metrics: {}\n".format(num_classes))
         self.metrics = {
             "acc": Accuracy(task="multiclass", num_classes=num_classes).to(device),
-            "precision": Precision(task="multiclass", num_classes=num_classes).to(
-                device
-            ),
+            "precision": Precision(task="multiclass", num_classes=num_classes).to(device),
             "recall": Recall(task="multiclass", num_classes=num_classes).to(device),
             "f1": F1Score(task="multiclass", num_classes=num_classes).to(device),
         }
@@ -22,6 +20,4 @@ class MultiClassMetrics:
         if self.num_labels is None:
             self.num_labels = predictions.shape[-1]
             self._init_metrics(predictions.shape[-1], labels.device)
-        return {
-            name: metric(predictions, labels) for name, metric in self.metrics.items()
-        }
+        return {name: metric(predictions, labels) for name, metric in self.metrics.items()}
