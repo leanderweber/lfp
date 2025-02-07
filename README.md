@@ -12,8 +12,22 @@ and naturally handles discrete objectives, such as feedback directly obtained fr
 LFP applies an implicit weight-scaling of updates and only propagates feedback through nonzero connections and activations. This leads to sparsity of updates and the final model, while not sacrificing performance or convergence speed meaningfully compared to gradient descent. The obtained models can be pruned more easily since they represent information more efficiently.
 
 ### :open_book: Paper
-For more details, refer to our paper
-TODO: Add Link & Citation
+For more details, refer to our [Paper](https://arxiv.org/abs/2308.12053).
+
+If you use this package in your research, please cite 
+```bibtex
+@article{weber2025efficient,
+      author={Leander Weber and Jim Berend and Moritz Weckbecker and Alexander Binder and Thomas Wiegand and Wojciech Samek and Sebastian Lapuschkin},
+      title={Efficient and Flexible Neural Network Training through Layer-wise Feedback Propagation},
+      journal={CoRR},
+      volume={abs/2308.12053},
+      year={2025},
+      url={https://arxiv.org/abs/2308.12053},
+      eprinttype={arXiv},
+      eprint={2308.12053},
+      archivePrefix={arXiv}, 
+}
+```
 
 ### :scroll: License
 This project is licensed under the BSD-3 Clause License, since LRP (which LFP is based on) is a patented technology that can only be used free of charge for personal and scientific purposes.
