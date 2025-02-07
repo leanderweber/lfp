@@ -168,18 +168,13 @@ class CorrectclassificationReward:
         """
 
         # Prepare one-hot labels
-        eye = torch.eye(logits.size()[1], device=self.device)
-        eye[labels]
-
-        # Set all misclassifications to -1, everything else to 0
-        # reward = torch.where(torch.stack([logits[l] > logits[l][label] for l, label in enumerate(labels)]), -1.0, 0.0)
 
         reward = torch.zeros_like(logits)
 
         # Set all correct classifications to 1
-        for l, label in enumerate(labels):
-            if logits[l].amax() == logits[l][label]:
-                reward[l][label] = 1  # 1-torch.softmax(logits[l], dim=0)[label]
+        for lab, label in enumerate(labels):
+            if logits[lab].amax() == logits[lab][label]:
+                reward[lab][label] = 1  # 1-torch.softmax(logits[l], dim=0)[label]
 
         # Correct Sign
         reward *= logits.sign()
@@ -202,13 +197,9 @@ class MisclassificationReward:
         :return:
         """
 
-        # Prepare one-hot labels
-        eye = torch.eye(logits.size()[1], device=self.device)
-        eye[labels]
-
         reward = (
             torch.where(
-                torch.stack([logits[l] > logits[l][label] for l, label in enumerate(labels)]),
+                torch.stack([logits[lab] > logits[lab][label] for lab, label in enumerate(labels)]),
                 -1,
                 0,
             )

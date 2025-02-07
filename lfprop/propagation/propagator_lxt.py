@@ -51,9 +51,12 @@ class ParameterizableComposite(lcore.Composite):
 
     def _attach_module_rule(self, child, parent, name, rule_dict):
         """
-        Attach a rule to the child module if it either 1. has a name equal to 'layer_type' or 2. is an instance of the 'layer_type' (see rule_dict).
-        In this case, if the rule is a subclass of WrapModule, the module is wrapped with the rule and attached to the parent as an attribute.
-        If the rule is a torch.nn.Module, the module is directly replaced with the rule by copying the parameters and then attached to the parent as an attribute.
+        Attach a rule to the child module if it either 1. has a name equal to 'layer_type' or 2. is an instance of the
+        'layer_type' (see rule_dict).
+        In this case, if the rule is a subclass of WrapModule, the module is wrapped with the rule and attached to
+        the parent as an attribute.
+        If the rule is a torch.nn.Module, the module is directly replaced with the rule by copying the parameters and
+        then attached to the parent as an attribute.
         """
 
         for layer_type, rule in rule_dict.items():
@@ -67,7 +70,8 @@ class ParameterizableComposite(lcore.Composite):
                     xai_module = rule(child)
                 elif isinstance(rule, type) and issubclass(rule, nn.Module):
                     # replace module with LXT.module and attach it to parent as attribute
-                    # INIT_MODULE_MAPPING contains the correct function for initializing and copying the parameters and buffers
+                    # INIT_MODULE_MAPPING contains the correct function for initializing and copying the parameters
+                    # and buffers
                     xai_module = INIT_MODULE_MAPPING[rule](child, rule)
                     child = xai_module
                 else:
@@ -121,7 +125,8 @@ class epsilon_lfp_fn(lrules.epsilon_lrp_fn):
             # no gradients to compute or gradient checkpointing is used
             return fn(*inputs)
 
-        # detach inputs to avoid overwriting gradients if same input is used as multiple arguments (like in self-attention)
+        # detach inputs to avoid overwriting gradients if same input is used as multiple arguments
+        # (like in self-attention)
         inputs = tuple(inp.detach().requires_grad_() if inp.requires_grad else inp for inp in inputs)
 
         # get parameters to store for backward. Here, we want to accumulate reward, so we do not detach
@@ -191,7 +196,7 @@ class epsilon_lfp_fn(lrules.epsilon_lrp_fn):
         # compute param reward (used to update parameters)
         for param in params:
             if not isinstance(param, tuple):
-                param = (param,)
+                param = (param,)  # noqa: PLW2901
             param_grads = torch.autograd.grad(outputs, param, normed_reward, retain_graph=True)
             if ctx.inplace:
                 param_reward = tuple(param_grads[i].mul_(param[i].abs()) for i in range(len(param)))

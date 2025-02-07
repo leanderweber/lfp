@@ -25,12 +25,12 @@ def collect_leaves(module):
         yield module
 
 
-def save_input_hook(module, input):
+def save_input_hook(module, inp):
     """
     Simple pytorch forward hook that writes a module's input into the module.saved_input parameter
     """
     # Save module input
-    module.saved_input = input[0]
+    module.saved_input = inp[0]
     module.saved_input.requires_grad_()
     module.saved_input.retain_grad()
 
@@ -70,7 +70,6 @@ def mod_params(module, modifier, param_keys=None, require_params=True):
                 param = getattr(module, key)
                 if param is not None:
                     stored_params[key] = param
-                    modifier(copy.deepcopy(param.data), key).sum()
                     setattr(
                         module,
                         key,
@@ -182,9 +181,9 @@ class LFPHook(zcore.Hook):
         self.param_keys = param_keys
         self.require_params = require_params
 
-    def forward(self, module, input, output):
+    def forward(self, module, inp, output):
         """Forward hook to save module in-/outputs."""
-        self.stored_tensors["input"] = input
+        self.stored_tensors["input"] = inp
 
     def backward(self, module, grad_input, grad_output):
         """
@@ -227,15 +226,15 @@ class LFPHook(zcore.Hook):
 
         with mod_param_storage_context(module) as param_storing_module:
             for in_mod, param_mod, out_mod in zip(self.input_modifiers, self.param_modifiers, self.output_modifiers):
-                input = in_mod(original_input).requires_grad_()
+                inp = in_mod(original_input).requires_grad_()
                 with (
                     mod_params(param_storing_module, param_mod, **param_kwargs) as modified,
                     torch.autograd.enable_grad(),
                 ):
-                    output = modified.forward(input)
+                    output = modified.forward(inp)
                     output = out_mod(output)
 
-                inputs.append(input)
+                inputs.append(inp)
                 outputs.append(output)
 
             # Input Relevance
@@ -299,7 +298,7 @@ class LFPHook(zcore.Hook):
 
     @staticmethod
     def _default_reducer(inputs, gradients):
-        return sum(input * gradient for input, gradient in zip(inputs, gradients))
+        return sum(inp * gradient for inp, gradient in zip(inputs, gradients))
 
 
 class LFPEpsilon(LFPHook):
@@ -314,7 +313,7 @@ class LFPEpsilon(LFPHook):
     def __init__(self, norm_backward, epsilon=1e-6):
         super().__init__(
             norm_backward=norm_backward,
-            input_modifiers=[lambda input: input],
+            input_modifiers=[lambda inp: inp],
             param_modifiers=[lambda param, _: param],
             output_modifiers=[lambda output: output],
             gradient_mapper=(lambda out_grad, outputs: out_grad / zcore.stabilize(outputs[0], epsilon)),

@@ -60,7 +60,11 @@ for base_dataset_name in BASE_DATASET_NAMES:
                                         f"activationfuncs-{base_dataset_name}-transfer-{base_config['model_name']}"
                                     )
 
-                                    config_name = f"{base_config['base_dataset_name']}_{base_config['model_name']}_{base_config['activation']}_{base_config['base_lr']}_{base_config['propagator_name']}_{base_config['norm_backward']}_{base_config['clip_updates']}_{base_config['weight_decay']}_{base_config['scheduler_name']}_{base_config['seed']}"
+                                    config_name = f"{base_config['base_dataset_name']}_{base_config['model_name']}"
+                                    config_name += f"_{base_config['activation']}_{base_config['base_lr']}"
+                                    config_name += f"_{base_config['propagator_name']}_{base_config['norm_backward']}"
+                                    config_name += f"_{base_config['clip_updates']}_{base_config['weight_decay']}"
+                                    config_name += f"_{base_config['scheduler_name']}_{base_config['seed']}"
 
                                     with open(
                                         f"{config_dir}/cluster/{config_name}_basemodel.yaml",

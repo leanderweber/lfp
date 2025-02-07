@@ -55,7 +55,13 @@ for base_dataset_name in BASE_DATASET_NAMES:
                                 base_config["weight_decay"] = weight_decay
                                 base_config["scheduler_name"] = scheduler_name
 
-                                config_name = f"{base_config['base_dataset_name']}_{base_config['base_lr']}_{base_config['propagator_name']}_{base_config['norm_backward']}_{base_config['clip_updates']}_{base_config['weight_decay']}_{base_config['scheduler_name']}_{base_config['seed']}"
+                                config_name = f"{base_config['base_dataset_name']}_{base_config['base_lr']}"
+                                config_name += f"_{base_config['propagator_name']}_{base_config['norm_backward']}"
+                                config_name += f"_{base_config['clip_updates']}_{base_config['weight_decay']}"
+                                config_name += f"_{base_config['scheduler_name']}_{base_config['seed']}"
 
-                                with open(f"{config_dir}/cluster/{config_name}_basemodel.yaml", "w") as outfile:
+                                with open(
+                                    f"{config_dir}/cluster/{config_name}_basemodel.yaml",
+                                    "w",
+                                ) as outfile:
                                     yaml.dump(base_config, outfile, default_flow_style=False)
