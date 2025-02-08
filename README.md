@@ -11,6 +11,8 @@
 [![LXT](https://img.shields.io/badge/LXT-purple.svg?labelColor)](https://github.com/rachtibat/LRP-eXplains-Transformers)
 [![Zennit](https://img.shields.io/badge/Zennit-darkred.svg)](https://github.com/chr5tphr/zennit)
 
+## :pushpin: Overview
+
 ### :octopus: Flexibility
 LFP is highly flexible w.r.t. the models and objective functions it can be used with, as it does not require differentiability.
 Consequently, it can be applied in non-differentiable architectures (e.g., Spiking Neural Networks) without requiring further adaptations,
@@ -19,7 +21,7 @@ and naturally handles discrete objectives, such as feedback directly obtained fr
 ### :gear: Efficiency
 LFP applies an implicit weight-scaling of updates and only propagates feedback through nonzero connections and activations. This leads to sparsity of updates and the final model, while not sacrificing performance or convergence speed meaningfully compared to gradient descent. The obtained models can be pruned more easily since they represent information more efficiently.
 
-### :open_book: Paper
+### :page_with_curl: Paper
 For more details, refer to our [Paper](https://arxiv.org/abs/2308.12053).
 
 If you use this package in your research, please cite
@@ -80,7 +82,7 @@ poetry install
 
 This requires ```poetry-core>=2.0.0,<3.0.0```.
 
-### Overview
+### :brain: How it works
 
 Our implementation of LFP is based the LRP-implementation of the [zennit](https://github.com/chr5tphr/zennit) and [LXT](https://github.com/rachtibat/LRP-eXplains-Transformers) libraries. Both of these libraries are based on [PyTorch](https://pytorch.org/) and modify the backward pass to return relevances instead of gradients.
 
@@ -144,11 +146,11 @@ with propagation_composite.context(model) as modified:
     optimizer.step()
 ```
 
-### Examples
+### :mag: Examples
 
 A simple, full example of how to train a LeNet model on MNIST can be found under ```minimal_example.ipynb```. An example using SNNs can be found under ```minimal_example_spiking_nets.ipynb```.Note that to run these notebooks, you need to install the necessary dependencies using ```lfprop[quickstart]```, as described under [Installation](#installation).
 
-### :mag: Reproducing Experiments
+### :test_tube: Reproducing Experiments
 
 To reproduce experiments from the paper, you first need to install the necessary dependencies with ```lfprop[full]```, as described under [Installation](#installation).
 
