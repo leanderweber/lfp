@@ -22,7 +22,7 @@ LFP applies an implicit weight-scaling of updates and only propagates feedback t
 ### :open_book: Paper
 For more details, refer to our [Paper](https://arxiv.org/abs/2308.12053).
 
-If you use this package in your research, please cite
+If you use this package in your research, please cite 
 ```bibtex
 @article{weber2025efficient,
       author={Leander Weber and Jim Berend and Moritz Weckbecker and Alexander Binder and Thomas Wiegand and Wojciech Samek and Sebastian Lapuschkin},
@@ -33,7 +33,7 @@ If you use this package in your research, please cite
       url={https://arxiv.org/abs/2308.12053},
       eprinttype={arXiv},
       eprint={2308.12053},
-      archivePrefix={arXiv},
+      archivePrefix={arXiv}, 
 }
 ```
 
