@@ -195,7 +195,7 @@ class LRPRewardPropagator:
 
         layers = models.list_snn_layers(self.model)
 
-        for l, layer in enumerate(reversed(layers)):
+        for lay, layer in enumerate(reversed(layers)):
             if isinstance(layer, tuple):
                 iteration_feedback = self.update_snntorch_parameters(layer, iteration_feedback, iteration_idx)
             else:
@@ -206,7 +206,7 @@ class LRPRewardPropagator:
         Resets all feedbacks
         """
         layers = models.list_snn_layers(self.model)
-        for l, layer in enumerate(reversed(layers)):
+        for lay, layer in enumerate(reversed(layers)):
             for module in layer:
                 if hasattr(module, "stored_feedback"):
                     del module.stored_feedback
@@ -218,8 +218,8 @@ class LRPRewardPropagator:
                         del module.bias.accumulated_feedback
 
         for layer in layers:
-            for l in layer:
-                assert not hasattr(l, "stored_feedback"), f"{l} {layer}"
+            for lay in layer:
+                assert not hasattr(lay, "stored_feedback"), f"{lay} {layer}"
 
 
 class ZplusMinusPropagator(LRPRewardPropagator):
