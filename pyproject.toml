@@ -63,7 +63,7 @@ snntorch = { version = "^0.9.1", optional = true }
 pytorch-lightning = { version = "^2.5.0.post0", optional = true }
 
 [tool.poetry.extras]
-quickstart = ["notebook", "torcheval"]
+quickstart = ["notebook", "torcheval", "snntorch]
 snn = ["snntorch"]
 full = [
     "wandb",

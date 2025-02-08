@@ -22,7 +22,7 @@ LFP applies an implicit weight-scaling of updates and only propagates feedback t
 ### :open_book: Paper
 For more details, refer to our [Paper](https://arxiv.org/abs/2308.12053).
 
-If you use this package in your research, please cite 
+If you use this package in your research, please cite
 ```bibtex
 @article{weber2025efficient,
       author={Leander Weber and Jim Berend and Moritz Weckbecker and Alexander Binder and Thomas Wiegand and Wojciech Samek and Sebastian Lapuschkin},
@@ -33,7 +33,7 @@ If you use this package in your research, please cite
       url={https://arxiv.org/abs/2308.12053},
       eprinttype={arXiv},
       eprint={2308.12053},
-      archivePrefix={arXiv}, 
+      archivePrefix={arXiv},
 }
 ```
 
@@ -146,7 +146,7 @@ with propagation_composite.context(model) as modified:
 
 ### Examples
 
-A simple, full example of how to train a LeNet model on MNIST can be found under ```minimal_example.ipynb```. Note that to run this notebook, you need to install the necessary dependencies using ```lfprop[quickstart]```, as described under [Installation](#installation).
+A simple, full example of how to train a LeNet model on MNIST can be found under ```minimal_example.ipynb```. An example using SNNs can be found under ```minimal_example_spiking_nets.ipynb```.Note that to run these notebooks, you need to install the necessary dependencies using ```lfprop[quickstart]```, as described under [Installation](#installation).
 
 ### :mag: Reproducing Experiments
 
