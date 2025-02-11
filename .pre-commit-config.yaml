@@ -12,16 +12,5 @@ repos:
       # Run the linter.
       - id: ruff
         args: [ --fix ]
-        types_or: [ python, pyi ]
       # Run the formatter.
       - id: ruff-format
-        types_or: [ python, pyi ]
-# -   repo: https://github.com/psf/black
-#     rev: 25.1.0
-#     hooks:
-#     -   id: black
-# -   repo: https://github.com/pycqa/isort
-#     rev: 6.0.0
-#     hooks:
-#       - id: isort
-#         name: isort (python)

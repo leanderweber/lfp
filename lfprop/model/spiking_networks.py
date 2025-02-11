@@ -6,9 +6,7 @@ except ImportError:
         "The SNN functionality of this package requires extra dependencies ",
         "which can be installed via pip install lfprop[snn] (or lfprop[full] for all dependencies).",
     )
-    raise ImportError(
-        "snntorch required; reinstall lfprop with option `snn` (pip install lfprop[snn])"
-    )
+    raise ImportError("snntorch required; reinstall lfprop with option `snn` (pip install lfprop[snn])")
 
 
 import torch
@@ -111,12 +109,8 @@ class LifMLP(tnn.Module):
         """
         for layer in self.classifier.modules():
             if not isinstance(layer, snn.SpikingNeuron):
-                self.forward_handles.append(
-                    layer.register_forward_pre_hook(save_input_hook)
-                )
-                self.forward_handles.append(
-                    layer.register_forward_hook(save_output_hook)
-                )
+                self.forward_handles.append(layer.register_forward_pre_hook(save_input_hook))
+                self.forward_handles.append(layer.register_forward_hook(save_output_hook))
 
     def remove_forward_hooks(self):
         """
@@ -364,11 +358,7 @@ def list_layers(model):
     """
 
     # Exclude specific types of modules
-    layers = [
-        module
-        for module in model.modules()
-        if type(module) not in [torch.nn.Sequential] + EXCLUDED_MODULE_TYPES
-    ]
+    layers = [module for module in model.modules() if type(module) not in [torch.nn.Sequential] + EXCLUDED_MODULE_TYPES]
 
     return layers
 
@@ -380,11 +370,7 @@ def list_snn_layers(model):
     """
 
     # Exclude specific types of modules
-    layers = [
-        module
-        for module in model.modules()
-        if type(module) not in [torch.nn.Sequential] + EXCLUDED_MODULE_TYPES
-    ]
+    layers = [module for module in model.modules() if type(module) not in [torch.nn.Sequential] + EXCLUDED_MODULE_TYPES]
 
     # Go through layers, grouping each snntorch layer with the preceding torch layer
     rev_layers = layers[::-1]
@@ -431,11 +417,7 @@ def clip_gradients(model, clip_update, clip_update_threshold=0.06):
                     param_grads_shape = param_grads.shape
                     if len(param_grads_shape) == 1:
                         param_grads = param_grads.unsqueeze(1)
-                    frob_norm_u = (
-                        (param_grads**2)
-                        .sum(dim=list(range(len(param_grads.shape)))[1:])
-                        .sqrt()
-                    )
+                    frob_norm_u = (param_grads**2).sum(dim=list(range(len(param_grads.shape)))[1:]).sqrt()
                     frob_norm_p_norm = torch.amax(
                         torch.stack([frob_norm_p, torch.ones_like(frob_norm_p) * 1e-6]),
                         dim=0,

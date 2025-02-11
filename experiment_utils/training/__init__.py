@@ -1,5 +1,5 @@
 try:
-    import snntorch
+    import snntorch  # noqa: F401
 except ImportError:
     print(
         "The SNN functionality of this package requires extra dependencies ",
