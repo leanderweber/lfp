@@ -6,7 +6,9 @@ except ImportError:
         "The SNN functionality of this package requires extra dependencies ",
         "which can be installed via pip install lfprop[snn] (or lfprop[full] for all dependencies).",
     )
-    raise ImportError("snntorch required; reinstall lfprop with option `snn` (pip install lfprop[snn])")
+    raise ImportError(
+        "snntorch required; reinstall lfprop with option `snn` (pip install lfprop[snn])"
+    )
 
 
 import torch
@@ -66,9 +68,9 @@ class CustomMaxPool2d(tnn.MaxPool2d):
         self.idx = None
         self.input_shape = None
 
-    def forward(self, input):
-        self.input_size = input.size()
-        res, self.idx = super().forward(input)
+    def forward(self, inp):
+        self.input_size = inp.size()
+        res, self.idx = super().forward(inp)
         return res
 
     def backward_lfp(self, incoming_feedback):
@@ -109,8 +111,12 @@ class LifMLP(tnn.Module):
         """
         for layer in self.classifier.modules():
             if not isinstance(layer, snn.SpikingNeuron):
-                self.forward_handles.append(layer.register_forward_pre_hook(save_input_hook))
-                self.forward_handles.append(layer.register_forward_hook(save_output_hook))
+                self.forward_handles.append(
+                    layer.register_forward_pre_hook(save_input_hook)
+                )
+                self.forward_handles.append(
+                    layer.register_forward_hook(save_output_hook)
+                )
 
     def remove_forward_hooks(self):
         """
@@ -301,20 +307,20 @@ def init_uniform(m):
         torch.nn.init.uniform_(m.weight, 0.0, 1.0)
 
 
-def save_input_hook(module, input):
+def save_input_hook(module, inp):
     """
     Simple pytorch forward hook that saves input
     """
-    if isinstance(input, tuple):
-        tmp_in = input[0]
+    if isinstance(inp, tuple):
+        tmp_in = inp[0]
     else:
-        tmp_in = input
+        tmp_in = inp
     tmp_in.requires_grad_()
     tmp_in.retain_grad()
     module.stored_x += [tmp_in]
 
 
-def save_output_hook(module, input, output):
+def save_output_hook(module, inp, output):
     """
     Simple pytorch forward hook that saves output
     """
@@ -358,27 +364,36 @@ def list_layers(model):
     """
 
     # Exclude specific types of modules
-    layers = [module for module in model.modules() if type(module) not in [torch.nn.Sequential] + EXCLUDED_MODULE_TYPES]
+    layers = [
+        module
+        for module in model.modules()
+        if type(module) not in [torch.nn.Sequential] + EXCLUDED_MODULE_TYPES
+    ]
 
     return layers
 
 
 def list_snn_layers(model):
     """
-    List module layers for SNNs. I.e., layers are returned as tuples of some torch layer and the following snntorch activation layer
+    List module layers for SNNs. I.e., layers are returned as tuples
+    of some torch layer and the following snntorch activation layer
     """
 
     # Exclude specific types of modules
-    layers = [module for module in model.modules() if type(module) not in [torch.nn.Sequential] + EXCLUDED_MODULE_TYPES]
+    layers = [
+        module
+        for module in model.modules()
+        if type(module) not in [torch.nn.Sequential] + EXCLUDED_MODULE_TYPES
+    ]
 
     # Go through layers, grouping each snntorch layer with the preceding torch layer
     rev_layers = layers[::-1]
     snnlayers = []
-    for l, layer in enumerate(rev_layers):
+    for lay, layer in enumerate(rev_layers):
         if isinstance(layer, snn.SpikingNeuron):
-            next_base_idx = l
+            next_base_idx = lay
             base_layer = rev_layers[next_base_idx]
-            tmp = [rev_layers[l]]
+            tmp = [rev_layers[lay]]
             while not any([isinstance(base_layer, bl) for bl in BASE_LAYERS]):
                 next_base_idx += 1
                 base_layer = rev_layers[next_base_idx]
@@ -399,15 +414,15 @@ def clip_gradients(model, clip_update, clip_update_threshold=0.06):
             # Get Parameters
             param_keys = [name for name, _ in layer.named_parameters(recurse=False)]
 
-            sum = 0.0
+            summed = 0.0
             frob_norm_p = 0.0
             for key in param_keys:
                 val = getattr(layer, key).data
                 if len(val.shape) == 1:
                     val = val.unsqueeze(1)
-                sum += (val**2).sum(dim=list(range(len(val.shape)))[1:])
+                summed += (val**2).sum(dim=list(range(len(val.shape)))[1:])
             if len(param_keys) != 0:
-                frob_norm_p = sum.sqrt()
+                frob_norm_p = summed.sqrt()
 
             for key in param_keys:
                 param = getattr(layer, key)
@@ -416,7 +431,11 @@ def clip_gradients(model, clip_update, clip_update_threshold=0.06):
                     param_grads_shape = param_grads.shape
                     if len(param_grads_shape) == 1:
                         param_grads = param_grads.unsqueeze(1)
-                    frob_norm_u = (param_grads**2).sum(dim=list(range(len(param_grads.shape)))[1:]).sqrt()
+                    frob_norm_u = (
+                        (param_grads**2)
+                        .sum(dim=list(range(len(param_grads.shape)))[1:])
+                        .sqrt()
+                    )
                     frob_norm_p_norm = torch.amax(
                         torch.stack([frob_norm_p, torch.ones_like(frob_norm_p) * 1e-6]),
                         dim=0,

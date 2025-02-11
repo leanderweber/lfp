@@ -61,7 +61,11 @@ def mod_params(module, modifier, param_keys=None, require_params=True):
 
         missing = [key for key in param_keys if not hasattr(module, key)]
         if require_params and missing:
-            raise RuntimeError("Module {} requires missing parameters: '{}'".format(module, "', '".join(missing)))
+            raise RuntimeError(
+                "Module {} requires missing parameters: '{}'".format(
+                    module, "', '".join(missing)
+                )
+            )
 
         for key in param_keys:
             if key not in missing:
@@ -112,7 +116,9 @@ class LRPRewardPropagator:
 
         layer_param_feedback = layer_feedback
 
-        layer_param_feedback /= zcore.stabilize(layer_Ucur + layer_reset * layer_threshold - layer_minmem, 1e-6).abs()
+        layer_param_feedback /= zcore.stabilize(
+            layer_Ucur + layer_reset * layer_threshold - layer_minmem, 1e-6
+        ).abs()
 
         for between_layer in list(layer)[1:-1][::-1]:
             layer_param_feedback = between_layer.backward_lfp(layer_param_feedback)
@@ -120,7 +126,9 @@ class LRPRewardPropagator:
         layer_Uprev_feedback = (
             layer_beta
             * layer_Uprev
-            / zcore.stabilize(layer_Ucur + layer_reset * layer_threshold - layer_minmem, 1e-6).abs()
+            / zcore.stabilize(
+                layer_Ucur + layer_reset * layer_threshold - layer_minmem, 1e-6
+            ).abs()
             * layer_feedback
         ).detach()
         layer_W_feedback = (
@@ -173,7 +181,12 @@ class LRPRewardPropagator:
                 layer[0].bias.accumulated_feedback = 0
             layer[0].bias.accumulated_feedback += layer_bias_feedback.detach()
 
-        if any([torch.isnan(t).sum() > 0 for t in [layer_Uprev_feedback, layer_W_feedback, layer_bias_feedback]]):
+        if any(
+            [
+                torch.isnan(t).sum() > 0
+                for t in [layer_Uprev_feedback, layer_W_feedback, layer_bias_feedback]
+            ]
+        ):
             raise ValueError(
                 "LFP Backprop results contain nan values, probably due to exploding relevances. \n"
                 "If this persists, try varying the following hyperparameters: \n"
@@ -197,7 +210,9 @@ class LRPRewardPropagator:
 
         for lay, layer in enumerate(reversed(layers)):
             if isinstance(layer, tuple):
-                iteration_feedback = self.update_snntorch_parameters(layer, iteration_feedback, iteration_idx)
+                iteration_feedback = self.update_snntorch_parameters(
+                    layer, iteration_feedback, iteration_idx
+                )
             else:
                 raise ValueError("This model seems to not be a SNN")
 
@@ -270,8 +285,16 @@ class ZplusMinusPropagator(LRPRewardPropagator):
                 layer_WXcur_neg_prop = between_layer(layer_WXcur_neg_prop)
 
         eps = 1e-6
-        layer_Uprev_pos = layer_Uprev.clip(min=0) if not isinstance(layer_Uprev, float) else min(0.0, layer_Uprev)
-        layer_Uprev_neg = layer_Uprev.clip(max=0) if not isinstance(layer_Uprev, float) else max(0.0, layer_Uprev)
+        layer_Uprev_pos = (
+            layer_Uprev.clip(min=0)
+            if not isinstance(layer_Uprev, float)
+            else min(0.0, layer_Uprev)
+        )
+        layer_Uprev_neg = (
+            layer_Uprev.clip(max=0)
+            if not isinstance(layer_Uprev, float)
+            else max(0.0, layer_Uprev)
+        )
         denominator_pos = layer_WXcur_pos_prop + layer_beta * layer_Uprev_pos
         denominator_pos = torch.where(
             denominator_pos == 0,
@@ -285,18 +308,30 @@ class ZplusMinusPropagator(LRPRewardPropagator):
             denominator_neg,
         )
 
-        pos_part = layer_WXcur_pos_prop.abs() / (layer_WXcur_neg_prop.abs() + layer_WXcur_pos_prop.abs())
-        neg_part = layer_WXcur_neg_prop.abs() / (layer_WXcur_neg_prop.abs() + layer_WXcur_pos_prop.abs())
+        pos_part = layer_WXcur_pos_prop.abs() / (
+            layer_WXcur_neg_prop.abs() + layer_WXcur_pos_prop.abs()
+        )
+        neg_part = layer_WXcur_neg_prop.abs() / (
+            layer_WXcur_neg_prop.abs() + layer_WXcur_pos_prop.abs()
+        )
         layer_param_feedback_pos = pos_part * layer_feedback / denominator_pos
         layer_param_feedback_neg = neg_part * layer_feedback / denominator_neg
 
         layer_Uprev_feedback = 0
-        layer_Uprev_feedback += (layer_beta * layer_Uprev_pos * layer_param_feedback_pos).detach()
-        layer_Uprev_feedback -= (layer_beta * layer_Uprev_neg * layer_param_feedback_neg).detach()
+        layer_Uprev_feedback += (
+            layer_beta * layer_Uprev_pos * layer_param_feedback_pos
+        ).detach()
+        layer_Uprev_feedback -= (
+            layer_beta * layer_Uprev_neg * layer_param_feedback_neg
+        ).detach()
 
         for between_layer in list(layer)[1:-1][::-1]:
-            layer_param_feedback_pos = between_layer.backward_lfp(layer_param_feedback_pos)
-            layer_param_feedback_neg = between_layer.backward_lfp(layer_param_feedback_neg)
+            layer_param_feedback_pos = between_layer.backward_lfp(
+                layer_param_feedback_pos
+            )
+            layer_param_feedback_neg = between_layer.backward_lfp(
+                layer_param_feedback_neg
+            )
 
         layer_W_feedback = 0
         layer_bias_feedback = 0
@@ -395,7 +430,12 @@ class ZplusMinusPropagator(LRPRewardPropagator):
                 layer[0].bias.accumulated_feedback = 0
             layer[0].bias.accumulated_feedback += layer_bias_feedback.detach()
 
-        if any([torch.isnan(t).sum() > 0 for t in [layer_Uprev_feedback, layer_W_feedback, layer_bias_feedback]]):
+        if any(
+            [
+                torch.isnan(t).sum() > 0
+                for t in [layer_Uprev_feedback, layer_W_feedback, layer_bias_feedback]
+            ]
+        ):
             raise ValueError(
                 "LFP Backprop results contain nan values, probably due to exploding relevances. \n"
                 "If this persists, try varying the following hyperparameters: \n"

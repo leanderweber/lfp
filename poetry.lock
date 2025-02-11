@@ -33,13 +33,13 @@ testing = ["bitsandbytes", "datasets", "diffusers", "evaluate", "parameterized",
 
 [[package]]
 name = "aiohappyeyeballs"
-version = "2.4.4"
+version = "2.4.6"
 description = "Happy Eyeballs for asyncio"
 optional = true
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "aiohappyeyeballs-2.4.4-py3-none-any.whl", hash = "sha256:a980909d50efcd44795c4afeca523296716d50cd756ddca6af8c65b996e27de8"},
-    {file = "aiohappyeyeballs-2.4.4.tar.gz", hash = "sha256:5fdd7d87889c63183afc18ce9271f9b0a7d32c2303e394468dd45d514a757745"},
+    {file = "aiohappyeyeballs-2.4.6-py3-none-any.whl", hash = "sha256:147ec992cf873d74f5062644332c539fcd42956dc69453fe5204195e560517e1"},
+    {file = "aiohappyeyeballs-2.4.6.tar.gz", hash = "sha256:9b05052f9042985d32ecbe4b59a77ae19c006a78f1344d7fdad69d28ded3d0b0"},
 ]
 
 [[package]]
@@ -4780,10 +4780,10 @@ tests = ["pytest", "pytest-cov"]
 
 [extras]
 full = ["joblib", "matplotlib", "notebook", "pandas", "pytorch-lightning", "scikit-learn", "snntorch", "torcheval", "wandb"]
-quickstart = ["notebook", "torcheval"]
+quickstart = ["notebook", "snntorch", "torcheval"]
 snn = ["snntorch"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11"
-content-hash = "929524d8fa300f59d7af1df0b3ade9c55340080e79aa0acfcd3df8fa50ec3281"
+content-hash = "313c03950d64888eb483fca208dba16910c885283ad8a76d4f863554914cccb7"
