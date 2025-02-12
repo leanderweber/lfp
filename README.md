@@ -11,8 +11,6 @@
 [![LXT](https://img.shields.io/badge/LXT-purple.svg?labelColor)](https://github.com/rachtibat/LRP-eXplains-Transformers)
 [![Zennit](https://img.shields.io/badge/Zennit-darkred.svg)](https://github.com/chr5tphr/zennit)
 
-## :pushpin: Overview
-
 ### :octopus: Flexibility
 LFP is highly flexible w.r.t. the models and objective functions it can be used with, as it does not require differentiability.
 Consequently, it can be applied in non-differentiable architectures (e.g., Spiking Neural Networks) without requiring further adaptations,
