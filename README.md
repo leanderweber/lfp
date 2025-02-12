@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/src/lfp_logo_v2.png" width="400"/>
+  <img src="docs/src/lfp_logo_v3.png" width="400"/>
   <p>Gradient-free Neural Network Training based on Layer-wise Relevance Propagation (LRP)</p>
 </div>
 
